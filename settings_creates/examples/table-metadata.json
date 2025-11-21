@@ -6,9 +6,11 @@
     "supportedLanguages": ["ja", "en"]
   },
   "database": {
-    "type": "h2",
-    "dialect": "org.hibernate.dialect.H2Dialect",
-    "defaultTimezone": "Asia/Tokyo"
+    "type": "mysql",
+    "dialect": "org.hibernate.dialect.MySQL8Dialect",
+    "defaultTimezone": "Asia/Tokyo",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_unicode_ci"
   },
   "tables": {
     "users": {
@@ -438,6 +440,116 @@
           "constraints": {
             "nullable": false,
             "default": "1"
+          },
+          "labels": {
+            "ja": "数量",
+            "en": "Quantity"
+          },
+          "ui": {
+            "inputType": "number",
+            "min": 1
+          },
+          "validation": {
+            "required": true,
+            "min": 1
+          }
+        },
+        "unit_price": {
+          "type": "DECIMAL",
+          "precision": 10,
+          "scale": 2,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "単価",
+            "en": "Unit Price"
+          },
+          "ui": {
+            "inputType": "number",
+            "step": "0.01",
+            "min": 0
+          },
+          "validation": {
+            "required": true,
+            "min": 0
+          }
+        }
+      }
+    },
+    "order_details": {
+      "metadata": {
+        "icon": "📋",
+        "color": "#9B59B6",
+        "sortOrder": 4,
+        "category": "orders",
+        "labels": {
+          "ja": "注文明細",
+          "en": "Order Details"
+        },
+        "description": {
+          "ja": "注文明細情報（複合主キーのサンプル）",
+          "en": "Order detail information (composite key sample)"
+        }
+      },
+      "primaryKey": {
+        "type": "composite",
+        "columns": ["order_id", "product_id"]
+      },
+      "columns": {
+        "order_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": false,
+            "primaryKey": true
+          },
+          "labels": {
+            "ja": "注文ID",
+            "en": "Order ID"
+          },
+          "ui": {
+            "inputType": "select"
+          },
+          "validation": {
+            "required": true
+          },
+          "foreignKey": {
+            "table": "orders",
+            "column": "id",
+            "displayColumn": "id",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          }
+        },
+        "product_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": false,
+            "primaryKey": true
+          },
+          "labels": {
+            "ja": "商品ID",
+            "en": "Product ID"
+          },
+          "ui": {
+            "inputType": "select"
+          },
+          "validation": {
+            "required": true
+          },
+          "foreignKey": {
+            "table": "products",
+            "column": "id",
+            "displayColumn": "name",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          }
+        },
+        "quantity": {
+          "type": "INT",
+          "constraints": {
+            "nullable": false,
+            "default": 1
           },
           "labels": {
             "ja": "数量",

@@ -66,8 +66,8 @@ class MetadataParser:
             enriched['database'] = {}
         
         database = enriched['database']
-        database.setdefault('type', 'h2')
-        database.setdefault('dialect', 'org.hibernate.dialect.H2Dialect')
+        database.setdefault('type', 'mysql')
+        database.setdefault('dialect', 'org.hibernate.dialect.MySQL8Dialect')
         database.setdefault('defaultTimezone', 'Asia/Tokyo')
         
         # テーブル情報の補完

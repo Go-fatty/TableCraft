@@ -258,7 +258,7 @@ ui.create=新規作成
 
 1. **ブラウザ開発者ツール**: コンソールログで設定読み込み状況確認
 2. **ネットワークタブ**: API通信の成功/失敗確認  
-3. **H2 Console**: `http://localhost:8082/h2-console` でDB状態確認
+3. **MySQL接続**: MySQL Workbench等でDB状態確認 (localhost:3306/tablecraft)
 4. **ログ出力**: Spring Boot のログでSQLエラー確認
 
 このリファレンスで効率的に設定できます！

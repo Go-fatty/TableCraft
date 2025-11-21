@@ -6,7 +6,7 @@ TableCraftは、JSONメタデータから動的にCRUD APIとUIを生成する�
 ## システム構成
 - **バックエンド**: Spring Boot 2.7.5 (Java)
 - **フロントエンド**: React + TypeScript + Vite
-- **データベース**: H2 (インメモリ)
+- **データベース**: MySQL 8.0
 - **設定ファイル**: `settings_creates/output/` の生成ファイルを使用
 
 ## 🚀 システム起動手順
@@ -33,8 +33,29 @@ start-system.bat
 
 ### 前提条件
 - Java 11以上
-- Node.js 16以上
+- Node.js 16以上  
 - Maven 3.6以上
+- **MySQL 8.0以上** (新規追加)
+
+### 🗄️ MySQL データベースセットアップ
+
+**初回セットアップ時に必須**
+
+1. **データベース作成**
+```sql
+CREATE DATABASE tablecraft CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE tablecraft;
+```
+
+2. **テーブル作成**  
+```bash
+mysql -u root -p -D tablecraft < backend/src/main/resources/mysql-schema.sql
+```
+
+3. **接続情報設定**  
+`backend/src/main/resources/application-dev.properties` でMySQL認証情報を設定
+
+### 前提条件
 
 ### 1. 手動起動 - バックエンド (Spring Boot)
 
@@ -75,8 +96,8 @@ npm run dev
 
 - **フロントエンド**: http://localhost:5173
 - **バックエンドAPI**: http://localhost:8082
-- **H2コンソール**: http://localhost:8082/h2-console
-  - JDBC URL: `jdbc:h2:mem:testdb`
+- **MySQL接続**: localhost:3306/tablecraft
+  - 認証情報: application-dev.properties で設定
   - ユーザー名: `sa`
   - パスワード: `password`
 

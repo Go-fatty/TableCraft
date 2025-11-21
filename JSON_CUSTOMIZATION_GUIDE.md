@@ -582,7 +582,7 @@ department.validation.name=Department name must be at least 2 characters
 
 1. **ブラウザコンソール**: 設定読み込み状況を確認
 2. **ネットワークタブ**: API通信の成功/失敗を確認
-3. **H2 Console**: `http://localhost:8082/h2-console` でDB確認
+3. **MySQL接続**: MySQL Workbench等でDB確認 (localhost:3306/tablecraft)
 
 ---
 
