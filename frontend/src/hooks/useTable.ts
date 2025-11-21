@@ -1,8 +1,8 @@
 // Generated React Hooks for table operations
 // Generated at: 2025-11-18 13:10:16
 
-import { useState, useEffect } from 'react';
-import { Users, UsersForm, Categories, CategoriesForm, Products, ProductsForm, OrderDetails, OrderDetailsForm } from '../types/generated';
+import { useState } from 'react';
+import type { Users, UsersForm, Categories, CategoriesForm, Products, ProductsForm, OrderDetails, OrderDetailsForm } from '../types/generated';
 
 // Common API response type
 interface ApiResponse<T> {
@@ -13,11 +13,11 @@ interface ApiResponse<T> {
 }
 
 // Common hook for API calls
-export const useApi = <T>() => {
+export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const callApi = async (url: string, options: RequestInit = {}): Promise<T | null> => {
+  const callApi = async <T>(url: string, options: RequestInit = {}): Promise<T | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +63,7 @@ export const useUsers = () => {
     const data = await callApi<Users[]>('/api/sql/findAll', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users' }),
-    }});
+    });
     
     if (data) {
       setRecords(data);
@@ -75,7 +75,7 @@ export const useUsers = () => {
     const result = await callApi<Users>('/api/sql/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users', data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -89,7 +89,7 @@ export const useUsers = () => {
     const result = await callApi<Users>('/api/sql/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users', id, data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -135,7 +135,7 @@ export const useCategories = () => {
     const data = await callApi<Categories[]>('/api/sql/findAll', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories' }),
-    }});
+    });
     
     if (data) {
       setRecords(data);
@@ -147,7 +147,7 @@ export const useCategories = () => {
     const result = await callApi<Categories>('/api/sql/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories', data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -161,7 +161,7 @@ export const useCategories = () => {
     const result = await callApi<Categories>('/api/sql/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories', id, data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -207,7 +207,7 @@ export const useProducts = () => {
     const data = await callApi<Products[]>('/api/sql/findAll', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products' }),
-    }});
+    });
     
     if (data) {
       setRecords(data);
@@ -219,7 +219,7 @@ export const useProducts = () => {
     const result = await callApi<Products>('/api/sql/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products', data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -233,7 +233,7 @@ export const useProducts = () => {
     const result = await callApi<Products>('/api/sql/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products', id, data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -279,7 +279,7 @@ export const useOrderDetails = () => {
     const data = await callApi<OrderDetails[]>('/api/sql/findAll', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'order_details' }),
-    }});
+    });
     
     if (data) {
       setRecords(data);
@@ -291,7 +291,7 @@ export const useOrderDetails = () => {
     const result = await callApi<OrderDetails>('/api/sql/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'order_details', data }),
-    }});
+    });
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -300,31 +300,33 @@ export const useOrderDetails = () => {
     return result;
   };
 
-  // Update existing record
-  const updateRecord = async (id: number, data: OrderDetailsForm) => {
+  // Update existing record with composite key
+  const updateRecord = async (keyValues: { order_id: number; product_id: number }, data: OrderDetailsForm) => {
     const result = await callApi<OrderDetails>('/api/sql/update', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details', id, data }),
-    }});
+      body: JSON.stringify({ tableName: 'order_details', keyValues, data }),
+    });
     
     if (result) {
       setRecords(prev => prev.map(record => 
-        record.id === id ? result : record
+        (record.order_id === keyValues.order_id && record.product_id === keyValues.product_id) ? result : record
       ));
     }
     
     return result;
   };
 
-  // Delete record
-  const deleteRecord = async (id: number) => {
+  // Delete record with composite key
+  const deleteRecord = async (keyValues: { order_id: number; product_id: number }) => {
     const success = await callApi<boolean>('/api/sql/delete', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details', id }),
+      body: JSON.stringify({ tableName: 'order_details', keyValues }),
     });
     
     if (success) {
-      setRecords(prev => prev.filter(record => record.id !== id));
+      setRecords(prev => prev.filter(record => 
+        !(record.order_id === keyValues.order_id && record.product_id === keyValues.product_id)
+      ));
     }
     
     return success;

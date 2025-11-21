@@ -35,6 +35,10 @@ type TableConfig = {
         labels: Record<string, string>;
         description: Record<string, string>;
       };
+      primaryKey?: {
+        type: 'single' | 'composite';
+        columns: string[];
+      };
     };
   };
   project: {
@@ -177,20 +181,40 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (record: TableRecord) => {
     if (!window.confirm('このレコードを削除しますか？')) {
       return;
     }
 
     try {
-      console.log('削除リクエスト:', { tableName, id });
+      const currentTable = tableConfig?.tables[tableName];
+      let requestBody: any = { tableName };
+
+      // 複合主キーの判定と処理
+      if (currentTable?.primaryKey?.type === 'composite' && currentTable?.primaryKey?.columns) {
+        // 複合主キーの場合
+        const keyValues: Record<string, any> = {};
+        currentTable.primaryKey.columns.forEach((column: string) => {
+          const value = record[column] || record[column.toUpperCase()];
+          if (value !== undefined) {
+            keyValues[column] = value;
+          }
+        });
+        requestBody.keyValues = keyValues;
+        console.log('複合主キー削除リクエスト:', requestBody);
+      } else {
+        // 単一主キーの場合（従来通り）
+        const id = record.id || record.ID;
+        requestBody.id = id;
+        console.log('単一主キー削除リクエスト:', requestBody);
+      }
       
       const response = await fetch('http://localhost:8082/api/sql/delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ tableName, id }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -203,10 +227,23 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
       console.log('削除レスポンス:', data);
       
       if (data.success) {
-        // レコードリストから削除（大文字小文字両方のIDに対応）
-        setRecords(records.filter(record => 
-          (record.id !== id) && (record.ID !== id)
-        ));
+        // レコードリストから削除
+        if (currentTable?.primaryKey?.type === 'composite' && currentTable?.primaryKey?.columns) {
+          // 複合主キーの場合
+          setRecords(records.filter(r => {
+            return !currentTable.primaryKey?.columns?.every((col: string) => {
+              const recordValue = r[col] || r[col.toUpperCase()];
+              const targetValue = record[col] || record[col.toUpperCase()];
+              return recordValue === targetValue;
+            });
+          }));
+        } else {
+          // 単一主キーの場合
+          const id = record.id || record.ID;
+          setRecords(records.filter(r => 
+            (r.id !== id) && (r.ID !== id)
+          ));
+        }
         alert('レコードが削除されました');
       } else {
         throw new Error(data.message || '削除に失敗しました');
@@ -433,7 +470,7 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
                       ✏️
                     </button>
                     <button
-                      onClick={() => handleDelete(record.id || record.ID)}
+                      onClick={() => handleDelete(record)}
                       className="delete-button"
                       title="削除"
                     >

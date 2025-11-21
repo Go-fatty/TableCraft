@@ -90,6 +90,8 @@ public class SqlBasedController {
         try {
             String tableName = (String) request.get("tableName");
             Object idObj = request.get("id");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> keyValues = (Map<String, Object>) request.get("keyValues");
 
             if (tableName == null || tableName.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -97,14 +99,26 @@ public class SqlBasedController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            if (idObj == null) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "id is required");
-                return ResponseEntity.badRequest().body(errorResponse);
+            Map<String, Object> result = null;
+            
+            // 複合主キーの場合
+            if ("composite".equals(sqlBasedTableService.getPrimaryKeyType(tableName))) {
+                if (keyValues == null || keyValues.isEmpty()) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "keyValues is required for composite key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                result = sqlBasedTableService.findByCompositeKey(tableName, keyValues);
+            } else {
+                // 単一主キーの場合
+                if (idObj == null) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "id is required for single key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                Long id = Long.valueOf(idObj.toString());
+                result = sqlBasedTableService.findById(tableName, id);
             }
-
-            Long id = Long.valueOf(idObj.toString());
-            Map<String, Object> result = sqlBasedTableService.findById(tableName, id);
 
             Map<String, Object> response = new HashMap<>();
             if (result != null) {
@@ -152,17 +166,13 @@ public class SqlBasedController {
             String tableName = (String) request.get("tableName");
             Object idObj = request.get("id");
             @SuppressWarnings("unchecked")
+            Map<String, Object> keyValues = (Map<String, Object>) request.get("keyValues");
+            @SuppressWarnings("unchecked")
             Map<String, Object> data = (Map<String, Object>) request.get("data");
 
             if (tableName == null || tableName.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("error", "tableName is required");
-                return ResponseEntity.badRequest().body(errorResponse);
-            }
-
-            if (idObj == null) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "id is required");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
@@ -172,8 +182,26 @@ public class SqlBasedController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            Long id = Long.valueOf(idObj.toString());
-            Map<String, Object> result = sqlBasedTableService.update(tableName, id, data);
+            Map<String, Object> result = null;
+
+            // 複合主キーの場合
+            if ("composite".equals(sqlBasedTableService.getPrimaryKeyType(tableName))) {
+                if (keyValues == null || keyValues.isEmpty()) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "keyValues is required for composite key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                result = sqlBasedTableService.updateComposite(tableName, keyValues, data);
+            } else {
+                // 単一主キーの場合
+                if (idObj == null) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "id is required for single key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                Long id = Long.valueOf(idObj.toString());
+                result = sqlBasedTableService.update(tableName, id, data);
+            }
 
             Map<String, Object> response = new HashMap<>();
             if (result != null) {
@@ -196,6 +224,8 @@ public class SqlBasedController {
         try {
             String tableName = (String) request.get("tableName");
             Object idObj = request.get("id");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> keyValues = (Map<String, Object>) request.get("keyValues");
 
             if (tableName == null || tableName.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -203,14 +233,26 @@ public class SqlBasedController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            if (idObj == null) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "id is required");
-                return ResponseEntity.badRequest().body(errorResponse);
-            }
+            boolean deleted = false;
 
-            Long id = Long.valueOf(idObj.toString());
-            boolean deleted = sqlBasedTableService.delete(tableName, id);
+            // 複合主キーの場合
+            if ("composite".equals(sqlBasedTableService.getPrimaryKeyType(tableName))) {
+                if (keyValues == null || keyValues.isEmpty()) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "keyValues is required for composite key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                deleted = sqlBasedTableService.deleteComposite(tableName, keyValues);
+            } else {
+                // 単一主キーの場合
+                if (idObj == null) {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "id is required for single key tables");
+                    return ResponseEntity.badRequest().body(errorResponse);
+                }
+                Long id = Long.valueOf(idObj.toString());
+                deleted = sqlBasedTableService.delete(tableName, id);
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", deleted);
