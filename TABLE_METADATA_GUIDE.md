@@ -1,0 +1,691 @@
+# table-metadata.json 設定ガイド
+
+## 概要
+`table-metadata.json`は、動的CRUDシステムの入力ファイルです。このファイルを編集してスクリプトを実行すると、`json_create/output/`フォルダに各種設定ファイルが自動生成されます。
+
+## 実行フロー
+1. `table-metadata.json` を編集（テーブル定義・UI設定など）
+2. Python スクリプト実行 → `output/` フォルダに設定ファイル生成
+3. システム起動 → 生成されたファイルを読み込んで動作
+
+---
+
+## 基本構造
+
+```json
+{
+  "project": { ... },     // プロジェクト設定
+  "database": { ... },    // データベース設定
+  "tables": { ... },      // テーブル定義（メイン部分）
+  "ui": { ... }           // UI設定
+}
+```
+
+---
+
+## プロジェクト設定
+
+```json
+{
+  "project": {
+    "name": "AutoStack Builder Sample",    // プロジェクト名
+    "version": "1.0.0",                   // バージョン
+    "defaultLanguage": "ja",              // デフォルト言語
+    "supportedLanguages": ["ja", "en"]    // サポート言語
+  }
+}
+```
+
+| 項目 | 必須 | 説明 |
+|------|------|------|
+| `name` | ✅ | プロジェクト名（表示用） |
+| `version` | ✅ | バージョン番号 |
+| `defaultLanguage` | ✅ | デフォルト表示言語（ja/en） |
+| `supportedLanguages` | ✅ | サポートする言語リスト |
+
+---
+
+## データベース設定
+
+```json
+{
+  "database": {
+    "type": "h2",                                    // DB種類
+    "dialect": "org.hibernate.dialect.H2Dialect",   // Hibernateダイアレクト
+    "defaultTimezone": "Asia/Tokyo"                  // タイムゾーン
+  }
+}
+```
+
+| 項目 | 必須 | 説明 |
+|------|------|------|
+| `type` | ✅ | データベース種類（h2/mysql/postgresql） |
+| `dialect` | ✅ | Hibernateダイアレクト |
+| `defaultTimezone` | ⭕ | デフォルトタイムゾーン |
+
+---
+
+## テーブル定義
+
+### テーブルメタデータ
+
+```json
+{
+  "tables": {
+    "users": {                    // テーブル名
+      "metadata": {
+        "icon": "👤",             // サイドバーアイコン
+        "color": "#4A90E2",       // テーマカラー
+        "sortOrder": 1,           // 表示順序
+        "category": "user_management",  // カテゴリ
+        "labels": {
+          "ja": "ユーザー",       // 日本語ラベル
+          "en": "Users"           // 英語ラベル
+        },
+        "description": {
+          "ja": "システム利用者の管理",
+          "en": "System user management"
+        }
+      }
+    }
+  }
+}
+```
+
+| 項目 | 必須 | 説明 |
+|------|------|------|
+| `icon` | ⭕ | サイドバー表示アイコン（絵文字推奨） |
+| `color` | ⭕ | テーマカラー（#RRGGBB形式） |
+| `sortOrder` | ⭕ | サイドバー表示順序 |
+| `category` | ⭕ | カテゴリ分類 |
+| `labels` | ✅ | 表示名（多言語対応） |
+| `description` | ⭕ | 説明文（多言語対応） |
+
+### プライマリキー設定
+
+#### 単一主キー（デフォルト）
+```json
+{
+  // primaryKeyの設定が無い場合、自動的に単一主キー扱い
+  "columns": {
+    "id": {
+      "constraints": {
+        "primaryKey": true,
+        "autoIncrement": true
+      }
+    }
+  }
+}
+```
+
+#### 複合主キー
+```json
+{
+  "primaryKey": {
+    "type": "composite",
+    "columns": ["order_id", "product_id"]
+  },
+  "columns": {
+    "order_id": {
+      "constraints": {
+        "primaryKey": true,
+        "nullable": false
+      }
+    },
+    "product_id": {
+      "constraints": {
+        "primaryKey": true,
+        "nullable": false
+      }
+    }
+  }
+}
+```
+
+### カラム定義
+
+```json
+{
+  "columns": {
+    "カラム名": {
+      "type": "データ型",
+      "length": 文字数,         // VARCHAR用
+      "precision": 精度,        // DECIMAL用
+      "scale": 小数点桁数,      // DECIMAL用
+      "constraints": { ... },   // 制約
+      "labels": { ... },        // ラベル
+      "ui": { ... },           // UI設定
+      "validation": { ... },    // バリデーション
+      "foreignKey": { ... }     // 外部キー
+    }
+  }
+}
+```
+
+#### データ型一覧
+
+| 型 | 説明 | 追加属性 | 例 |
+|---|------|---------|-----|
+| `VARCHAR` | 可変文字列 | `length` | `"type": "VARCHAR", "length": 100` |
+| `TEXT` | 長文テキスト | - | `"type": "TEXT"` |
+| `INT` | 整数 | - | `"type": "INT"` |
+| `BIGINT` | 長整数 | - | `"type": "BIGINT"` |
+| `DECIMAL` | 小数 | `precision`, `scale` | `"type": "DECIMAL", "precision": 10, "scale": 2` |
+| `BOOLEAN` | 真偽値 | - | `"type": "BOOLEAN"` |
+| `DATE` | 日付 | - | `"type": "DATE"` |
+| `DATETIME` | 日時 | - | `"type": "DATETIME"` |
+
+#### 制約設定
+
+```json
+{
+  "constraints": {
+    "primaryKey": true,         // プライマリキー
+    "autoIncrement": true,      // 自動採番
+    "nullable": false,          // NULL許可
+    "unique": true,             // ユニーク制約
+    "default": "値"             // デフォルト値
+  }
+}
+```
+
+| 制約 | 型 | 説明 |
+|------|-----|------|
+| `primaryKey` | boolean | プライマリキーかどうか |
+| `autoIncrement` | boolean | 自動採番するか |
+| `nullable` | boolean | NULLを許可するか |
+| `unique` | boolean | ユニーク制約 |
+| `default` | string | デフォルト値（"0", "true", "CURRENT_TIMESTAMP"など） |
+
+#### 外部キー設定
+
+```json
+{
+  "foreignKey": {
+    "table": "categories",        // 参照先テーブル
+    "column": "id",              // 参照先カラム
+    "displayColumn": "name",     // 表示用カラム
+    "onDelete": "SET NULL",      // 削除時動作
+    "onUpdate": "CASCADE"        // 更新時動作
+  }
+}
+```
+
+| 項目 | 必須 | 説明 |
+|------|------|------|
+| `table` | ✅ | 参照先テーブル名 |
+| `column` | ✅ | 参照先カラム名 |
+| `displayColumn` | ✅ | プルダウンに表示するカラム名 |
+| `onDelete` | ⭕ | 削除時の動作（CASCADE/SET NULL/RESTRICT） |
+| `onUpdate` | ⭕ | 更新時の動作（CASCADE/SET NULL/RESTRICT） |
+
+##### 外部キー制約オプション詳細
+
+###### onDelete（削除時の動作）
+
+| 値 | 説明 | 動作例 |
+|---|------|--------|
+| `CASCADE` | 参照元も一緒に削除 | カテゴリーを削除 → そのカテゴリーの商品も全て削除 |
+| `SET NULL` | 参照元をNULLに設定 | カテゴリーを削除 → 商品のcategory_idをNULLに設定 |
+| `RESTRICT` | 参照元がある場合は削除を拒否 | カテゴリーを削除しようとしてもエラーで拒否される |
+| `NO ACTION` | RESTRICT と同じ | 削除を拒否（データベース依存） |
+
+###### onUpdate（更新時の動作）
+
+| 値 | 説明 | 動作例 |
+|---|------|--------|
+| `CASCADE` | 参照元も一緒に更新 | カテゴリーIDを変更 → 商品のcategory_idも自動更新 |
+| `SET NULL` | 参照元をNULLに設定 | カテゴリーIDを変更 → 商品のcategory_idをNULLに設定 |
+| `RESTRICT` | 参照元がある場合は更新を拒否 | カテゴリーIDを変更しようとしてもエラーで拒否 |
+| `NO ACTION` | RESTRICT と同じ | 更新を拒否（データベース依存） |
+
+###### 設定の推奨パターン
+
+```json
+// パターン1: 親削除時は子もまとめて削除（注文→注文明細など）
+{
+  "onDelete": "CASCADE",
+  "onUpdate": "CASCADE"
+}
+
+// パターン2: 親削除時は子は残す（カテゴリー→商品など）
+{
+  "onDelete": "SET NULL", 
+  "onUpdate": "CASCADE"
+}
+
+// パターン3: 親は削除させない（重要なマスタデータなど）
+{
+  "onDelete": "RESTRICT",
+  "onUpdate": "CASCADE"
+}
+```
+
+###### 注意事項
+
+⚠️ **CASCADE使用時の注意**
+- `onDelete: "CASCADE"`は慎重に使用してください
+- 意図しない大量データ削除の可能性があります
+- テーブル間の関係性を十分理解してから設定してください
+
+✅ **安全な設定**
+- 通常は `SET NULL` または `RESTRICT` を推奨
+- `CASCADE`は親子関係が明確な場合のみ使用
+
+#### UI設定
+
+```json
+{
+  "ui": {
+    "hidden": true,               // フォームで非表示
+    "readonly": true,             // 読み取り専用
+    "inputType": "text",          // 入力タイプ
+    "placeholder": {              // プレースホルダー
+      "ja": "氏名を入力してください",
+      "en": "Enter your name"
+    },
+    "min": 0,                     // 最小値（number用）
+    "max": 150,                   // 最大値（number用）
+    "step": "0.01",              // ステップ（number用）
+    "rows": 3,                    // 行数（textarea用）
+    "allowNull": true,            // NULL許可（select用）
+    "nullLabel": {                // NULL時ラベル（select用）
+      "ja": "選択なし",
+      "en": "None"
+    },
+    "suffix": "円"                // 後置文字（表示用）
+  }
+}
+```
+
+##### inputType一覧
+
+| type | 説明 | 対応データ型 | 追加属性 |
+|------|------|-------------|---------|
+| `text` | テキスト入力 | VARCHAR, TEXT | placeholder |
+| `email` | メール入力 | VARCHAR | placeholder |
+| `tel` | 電話番号 | VARCHAR | placeholder |
+| `number` | 数値入力 | INT, BIGINT, DECIMAL | min, max, step |
+| `date` | 日付選択 | DATE | - |
+| `datetime-local` | 日時選択 | DATETIME | - |
+| `checkbox` | チェックボックス | BOOLEAN | - |
+| `textarea` | 複数行テキスト | TEXT | rows, placeholder |
+| `select` | プルダウン選択 | 外部キー | allowNull, nullLabel |
+
+#### バリデーション設定
+
+```json
+{
+  "validation": {
+    "required": true,             // 必須チェック
+    "minLength": 2,              // 最小文字数
+    "maxLength": 100,            // 最大文字数
+    "min": 0,                    // 最小値
+    "max": 999999,               // 最大値
+    "pattern": "email"           // パターン（email または 正規表現）
+  }
+}
+```
+
+| ルール | 型 | 説明 | 対応フィールド |
+|--------|-----|------|-------------|
+| `required` | boolean | 必須入力 | 全て |
+| `minLength` | number | 最小文字数 | テキスト系 |
+| `maxLength` | number | 最大文字数 | テキスト系 |
+| `min` | number | 最小値 | 数値系 |
+| `max` | number | 最大値 | 数値系 |
+| `pattern` | string | パターンマッチ（"email"または正規表現） | テキスト系 |
+
+---
+
+## UI設定
+
+```json
+{
+  "ui": {
+    "theme": {
+      "primary": "#4A90E2",       // プライマリカラー
+      "secondary": "#E67E22",     // セカンダリカラー
+      "success": "#27AE60",       // 成功カラー
+      "warning": "#F39C12",       // 警告カラー
+      "danger": "#E74C3C",        // 危険カラー
+      "info": "#3498DB"           // 情報カラー
+    },
+    "sidebar": {
+      "width": "280px",           // サイドバー幅
+      "backgroundColor": "#2C3E50", // 背景色
+      "textColor": "#ECF0F1"      // テキスト色
+    },
+    "pagination": {
+      "defaultPageSize": 20,      // デフォルトページサイズ
+      "pageSizeOptions": [10, 20, 50, 100]  // ページサイズ選択肢
+    }
+  }
+}
+```
+
+---
+
+## よく使用するパターン
+
+### 1. 基本的なテキストフィールド
+
+```json
+{
+  "name": {
+    "type": "VARCHAR",
+    "length": 100,
+    "constraints": {
+      "nullable": false
+    },
+    "labels": {
+      "ja": "氏名",
+      "en": "Name"
+    },
+    "ui": {
+      "inputType": "text",
+      "placeholder": {
+        "ja": "氏名を入力してください",
+        "en": "Enter your name"
+      }
+    },
+    "validation": {
+      "required": true,
+      "minLength": 2,
+      "maxLength": 100
+    }
+  }
+}
+```
+
+### 2. 外部キー参照フィールド
+
+```json
+{
+  "category_id": {
+    "type": "BIGINT",
+    "constraints": {
+      "nullable": true
+    },
+    "labels": {
+      "ja": "カテゴリー",
+      "en": "Category"
+    },
+    "foreignKey": {
+      "table": "categories",
+      "column": "id",
+      "displayColumn": "name",
+      "onDelete": "SET NULL",
+      "onUpdate": "CASCADE"
+    },
+    "ui": {
+      "inputType": "select",
+      "allowNull": true,
+      "nullLabel": {
+        "ja": "カテゴリーなし",
+        "en": "No Category"
+      }
+    }
+  }
+}
+```
+
+### 3. 価格フィールド
+
+```json
+{
+  "price": {
+    "type": "DECIMAL",
+    "precision": 10,
+    "scale": 2,
+    "constraints": {
+      "nullable": false
+    },
+    "labels": {
+      "ja": "価格",
+      "en": "Price"
+    },
+    "ui": {
+      "inputType": "number",
+      "step": "0.01",
+      "min": 0,
+      "suffix": "円"
+    },
+    "validation": {
+      "required": true,
+      "min": 0
+    }
+  }
+}
+```
+
+### 4. ブール値フィールド
+
+```json
+{
+  "is_active": {
+    "type": "BOOLEAN",
+    "constraints": {
+      "nullable": false,
+      "default": "true"
+    },
+    "labels": {
+      "ja": "有効",
+      "en": "Active"
+    },
+    "ui": {
+      "inputType": "checkbox"
+    }
+  }
+}
+```
+
+### 5. 日時フィールド
+
+```json
+{
+  "created_date": {
+    "type": "DATETIME",
+    "constraints": {
+      "nullable": false,
+      "default": "CURRENT_TIMESTAMP"
+    },
+    "labels": {
+      "ja": "作成日時",
+      "en": "Created Date"
+    },
+    "ui": {
+      "hidden": true,
+      "readonly": true
+    }
+  }
+}
+```
+
+### 6. 複数行テキスト
+
+```json
+{
+  "description": {
+    "type": "TEXT",
+    "constraints": {
+      "nullable": true
+    },
+    "labels": {
+      "ja": "説明",
+      "en": "Description"
+    },
+    "ui": {
+      "inputType": "textarea",
+      "rows": 4,
+      "placeholder": {
+        "ja": "説明を入力してください",
+        "en": "Enter description"
+      }
+    }
+  }
+}
+```
+
+---
+
+## 新しいテーブル追加例
+
+例：従業員テーブルを追加する場合
+
+```json
+{
+  "tables": {
+    "既存のテーブル": { ... },
+    "employees": {
+      "metadata": {
+        "icon": "👥",
+        "color": "#2ECC71",
+        "sortOrder": 5,
+        "category": "human_resources",
+        "labels": {
+          "ja": "従業員",
+          "en": "Employees"
+        },
+        "description": {
+          "ja": "従業員情報の管理",
+          "en": "Employee information management"
+        }
+      },
+      "columns": {
+        "id": {
+          "type": "BIGINT",
+          "constraints": {
+            "primaryKey": true,
+            "autoIncrement": true,
+            "nullable": false
+          },
+          "labels": {
+            "ja": "従業員ID",
+            "en": "Employee ID"
+          },
+          "ui": {
+            "hidden": true,
+            "readonly": true
+          }
+        },
+        "employee_number": {
+          "type": "VARCHAR",
+          "length": 20,
+          "constraints": {
+            "nullable": false,
+            "unique": true
+          },
+          "labels": {
+            "ja": "社員番号",
+            "en": "Employee Number"
+          },
+          "ui": {
+            "inputType": "text",
+            "placeholder": {
+              "ja": "社員番号を入力",
+              "en": "Enter employee number"
+            }
+          },
+          "validation": {
+            "required": true,
+            "maxLength": 20
+          }
+        },
+        "department_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "部署",
+            "en": "Department"
+          },
+          "foreignKey": {
+            "table": "departments",
+            "column": "id",
+            "displayColumn": "name",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE"
+          },
+          "ui": {
+            "inputType": "select",
+            "allowNull": true,
+            "nullLabel": {
+              "ja": "未配属",
+              "en": "Unassigned"
+            }
+          }
+        },
+        "salary": {
+          "type": "DECIMAL",
+          "precision": 10,
+          "scale": 2,
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "給与",
+            "en": "Salary"
+          },
+          "ui": {
+            "inputType": "number",
+            "step": "1000",
+            "min": 0
+          },
+          "validation": {
+            "min": 0
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## 作業フロー
+
+### 1. 設定ファイル編集
+`json_create/examples/table-metadata.json` を編集
+
+### 2. スクリプト実行
+```bash
+cd json_create
+python generator.py
+```
+
+### 3. 出力ファイル確認
+`json_create/output/` フォルダに以下が生成される：
+- `table-config.json`
+- `validation-config.json`
+- `ui-config.json`
+- `types.ts`
+- SQLファイル群
+- プロパティファイル群
+
+### 4. システム起動
+バッチファイル等でバックエンド・フロントエンドを起動
+
+### 5. 動作確認
+ブラウザで CRUD 操作をテスト
+
+---
+
+## 注意事項
+
+1. **JSON構文**: 末尾のカンマに注意
+2. **外部キー**: 参照先テーブルを先に定義
+3. **データ型**: SQLとの互換性を確認
+4. **文字コード**: UTF-8で保存
+5. **バックアップ**: 編集前にファイルをバックアップ
+
+## トラブルシューティング
+
+- **スクリプトエラー**: JSON構文エラーを確認
+- **生成ファイル**: output フォルダの内容を確認
+- **システム起動**: エラーログを確認
+- **画面表示**: ブラウザ開発者ツールでエラー確認
+
+この設定ガイドに従って `table-metadata.json` を編集することで、自由にテーブル構造をカスタマイズできます！

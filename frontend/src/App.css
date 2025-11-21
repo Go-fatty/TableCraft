@@ -1,0 +1,156 @@
+/* AutoStack Builder App Styles */
+.app {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #f8fafc;
+}
+
+/* Layout Styles */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  color: #718096;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+  max-width: 500px;
+  line-height: 1.6;
+  color: #718096;
+}
+
+/* Form Container Styles */
+.form-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.form-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-button {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.back-button:hover {
+  background: #d1d5db;
+  border-color: #9ca3af;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.form-content {
+  padding: 32px 24px;
+  text-align: center;
+  color: #718096;
+}
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+  
+  .empty-state {
+    height: 300px;
+    padding: 20px;
+  }
+  
+  .empty-state-icon {
+    font-size: 3rem;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.2rem;
+  }
+  
+  .empty-state p {
+    font-size: 0.9rem;
+  }
+  
+  .form-header {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .form-content {
+    padding: 24px 20px;
+  }
+}

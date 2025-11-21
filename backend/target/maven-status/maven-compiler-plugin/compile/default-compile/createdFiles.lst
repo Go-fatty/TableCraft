@@ -1,0 +1,4 @@
+com\tablecraft\app\dynamic\SqlBasedTableService.class
+com\tablecraft\app\dynamic\SqlBasedController.class
+com\tablecraft\app\Application.class
+com\tablecraft\app\dynamic\FieldDefinition.class

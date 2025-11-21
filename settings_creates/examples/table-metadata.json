@@ -1,0 +1,498 @@
+{
+  "project": {
+    "name": "AutoStack Builder Sample",
+    "version": "1.0.0",
+    "defaultLanguage": "ja",
+    "supportedLanguages": ["ja", "en"]
+  },
+  "database": {
+    "type": "h2",
+    "dialect": "org.hibernate.dialect.H2Dialect",
+    "defaultTimezone": "Asia/Tokyo"
+  },
+  "tables": {
+    "users": {
+      "metadata": {
+        "icon": "👤",
+        "color": "#4A90E2",
+        "sortOrder": 1,
+        "category": "user_management",
+        "labels": {
+          "ja": "ユーザー",
+          "en": "Users"
+        },
+        "description": {
+          "ja": "システム利用者の管理",
+          "en": "System user management"
+        }
+      },
+      "columns": {
+        "id": {
+          "type": "BIGINT",
+          "constraints": {
+            "primaryKey": true,
+            "autoIncrement": true,
+            "nullable": false
+          },
+          "labels": {
+            "ja": "ユーザーID",
+            "en": "User ID"
+          },
+          "ui": {
+            "hidden": true,
+            "readonly": true
+          }
+        },
+        "name": {
+          "type": "VARCHAR",
+          "length": 100,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "氏名",
+            "en": "Name"
+          },
+          "ui": {
+            "inputType": "text",
+            "placeholder": {
+              "ja": "氏名を入力してください",
+              "en": "Enter your name"
+            }
+          },
+          "validation": {
+            "required": true,
+            "minLength": 2,
+            "maxLength": 100,
+            "pattern": "^[\\p{L}\\s]+$"
+          }
+        },
+        "email": {
+          "type": "VARCHAR",
+          "length": 255,
+          "constraints": {
+            "nullable": false,
+            "unique": true
+          },
+          "labels": {
+            "ja": "メールアドレス",
+            "en": "Email Address"
+          },
+          "ui": {
+            "inputType": "email",
+            "placeholder": {
+              "ja": "example@domain.com",
+              "en": "example@domain.com"
+            }
+          },
+          "validation": {
+            "required": true,
+            "pattern": "email"
+          }
+        },
+        "age": {
+          "type": "INT",
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "年齢",
+            "en": "Age"
+          },
+          "ui": {
+            "inputType": "number",
+            "min": 0,
+            "max": 150
+          },
+          "validation": {
+            "min": 0,
+            "max": 150
+          }
+        },
+        "phone": {
+          "type": "VARCHAR",
+          "length": 20,
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "電話番号",
+            "en": "Phone Number"
+          },
+          "ui": {
+            "inputType": "tel",
+            "placeholder": {
+              "ja": "090-1234-5678",
+              "en": "+81-90-1234-5678"
+            }
+          }
+        },
+        "created_date": {
+          "type": "DATETIME",
+          "constraints": {
+            "nullable": false,
+            "default": "CURRENT_TIMESTAMP"
+          },
+          "labels": {
+            "ja": "作成日時",
+            "en": "Created Date"
+          },
+          "ui": {
+            "hidden": true,
+            "readonly": true
+          }
+        }
+      }
+    },
+    "categories": {
+      "metadata": {
+        "icon": "📂",
+        "color": "#E67E22",
+        "sortOrder": 2,
+        "category": "catalog",
+        "labels": {
+          "ja": "カテゴリー",
+          "en": "Categories"
+        },
+        "description": {
+          "ja": "商品カテゴリーの管理",
+          "en": "Product category management"
+        }
+      },
+      "columns": {
+        "id": {
+          "type": "BIGINT",
+          "constraints": {
+            "primaryKey": true,
+            "autoIncrement": true,
+            "nullable": false
+          },
+          "labels": {
+            "ja": "カテゴリーID",
+            "en": "Category ID"
+          },
+          "ui": {
+            "hidden": true,
+            "readonly": true
+          }
+        },
+        "name": {
+          "type": "VARCHAR",
+          "length": 100,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "カテゴリー名",
+            "en": "Category Name"
+          },
+          "ui": {
+            "inputType": "text",
+            "placeholder": {
+              "ja": "カテゴリー名を入力",
+              "en": "Enter category name"
+            }
+          },
+          "validation": {
+            "required": true,
+            "maxLength": 100
+          }
+        },
+        "description": {
+          "type": "TEXT",
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "説明",
+            "en": "Description"
+          },
+          "ui": {
+            "inputType": "textarea",
+            "rows": 3,
+            "placeholder": {
+              "ja": "カテゴリーの説明を入力",
+              "en": "Enter category description"
+            }
+          }
+        },
+        "sort_order": {
+          "type": "INT",
+          "constraints": {
+            "nullable": true,
+            "default": "0"
+          },
+          "labels": {
+            "ja": "表示順",
+            "en": "Sort Order"
+          },
+          "ui": {
+            "inputType": "number",
+            "min": 0
+          },
+          "validation": {
+            "min": 0
+          }
+        }
+      }
+    },
+    "products": {
+      "metadata": {
+        "icon": "📦",
+        "color": "#27AE60",
+        "sortOrder": 3,
+        "category": "catalog",
+        "labels": {
+          "ja": "商品",
+          "en": "Products"
+        },
+        "description": {
+          "ja": "商品情報の管理",
+          "en": "Product information management"
+        }
+      },
+      "columns": {
+        "id": {
+          "type": "BIGINT",
+          "constraints": {
+            "primaryKey": true,
+            "autoIncrement": true,
+            "nullable": false
+          },
+          "labels": {
+            "ja": "商品ID",
+            "en": "Product ID"
+          },
+          "ui": {
+            "hidden": true,
+            "readonly": true
+          }
+        },
+        "name": {
+          "type": "VARCHAR",
+          "length": 200,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "商品名",
+            "en": "Product Name"
+          },
+          "ui": {
+            "inputType": "text",
+            "placeholder": {
+              "ja": "商品名を入力",
+              "en": "Enter product name"
+            }
+          },
+          "validation": {
+            "required": true,
+            "maxLength": 200
+          }
+        },
+        "category_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": true
+          },
+          "labels": {
+            "ja": "カテゴリー",
+            "en": "Category"
+          },
+          "foreignKey": {
+            "table": "categories",
+            "column": "id",
+            "displayColumn": "name",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE"
+          },
+          "ui": {
+            "inputType": "select",
+            "allowNull": true,
+            "nullLabel": {
+              "ja": "カテゴリーなし",
+              "en": "No Category"
+            }
+          }
+        },
+        "price": {
+          "type": "DECIMAL",
+          "precision": 10,
+          "scale": 2,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "価格",
+            "en": "Price"
+          },
+          "ui": {
+            "inputType": "number",
+            "step": "0.01",
+            "min": 0,
+            "suffix": "円"
+          },
+          "validation": {
+            "required": true,
+            "min": 0
+          }
+        },
+        "stock": {
+          "type": "INT",
+          "constraints": {
+            "nullable": true,
+            "default": "0"
+          },
+          "labels": {
+            "ja": "在庫数",
+            "en": "Stock"
+          },
+          "ui": {
+            "inputType": "number",
+            "min": 0
+          },
+          "validation": {
+            "min": 0
+          }
+        },
+        "is_active": {
+          "type": "BOOLEAN",
+          "constraints": {
+            "nullable": false,
+            "default": "true"
+          },
+          "labels": {
+            "ja": "有効",
+            "en": "Active"
+          },
+          "ui": {
+            "inputType": "checkbox"
+          }
+        }
+      }
+    },
+    "order_details": {
+      "metadata": {
+        "icon": "📋",
+        "color": "#9B59B6",
+        "sortOrder": 4,
+        "category": "orders",
+        "labels": {
+          "ja": "注文明細",
+          "en": "Order Details"
+        },
+        "description": {
+          "ja": "注文明細情報（複合主キーのサンプル）",
+          "en": "Order detail information (composite key sample)"
+        }
+      },
+      "primaryKey": {
+        "type": "composite",
+        "columns": ["order_id", "product_id"]
+      },
+      "columns": {
+        "order_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": false,
+            "primaryKey": true
+          },
+          "labels": {
+            "ja": "注文ID",
+            "en": "Order ID"
+          },
+          "foreignKey": {
+            "table": "orders",
+            "column": "id",
+            "displayColumn": "id",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
+          "ui": {
+            "inputType": "select"
+          }
+        },
+        "product_id": {
+          "type": "BIGINT",
+          "constraints": {
+            "nullable": false,
+            "primaryKey": true
+          },
+          "labels": {
+            "ja": "商品ID",
+            "en": "Product ID"
+          },
+          "foreignKey": {
+            "table": "products",
+            "column": "id",
+            "displayColumn": "name",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE"
+          },
+          "ui": {
+            "inputType": "select"
+          }
+        },
+        "quantity": {
+          "type": "INT",
+          "constraints": {
+            "nullable": false,
+            "default": "1"
+          },
+          "labels": {
+            "ja": "数量",
+            "en": "Quantity"
+          },
+          "ui": {
+            "inputType": "number",
+            "min": 1
+          },
+          "validation": {
+            "required": true,
+            "min": 1
+          }
+        },
+        "unit_price": {
+          "type": "DECIMAL",
+          "precision": 10,
+          "scale": 2,
+          "constraints": {
+            "nullable": false
+          },
+          "labels": {
+            "ja": "単価",
+            "en": "Unit Price"
+          },
+          "ui": {
+            "inputType": "number",
+            "step": "0.01",
+            "min": 0
+          },
+          "validation": {
+            "required": true,
+            "min": 0
+          }
+        }
+      }
+    }
+  },
+  "ui": {
+    "theme": {
+      "primary": "#4A90E2",
+      "secondary": "#E67E22",
+      "success": "#27AE60",
+      "warning": "#F39C12",
+      "danger": "#E74C3C",
+      "info": "#3498DB"
+    },
+    "sidebar": {
+      "width": "280px",
+      "backgroundColor": "#2C3E50",
+      "textColor": "#ECF0F1"
+    },
+    "pagination": {
+      "defaultPageSize": 20,
+      "pageSizeOptions": [10, 20, 50, 100]
+    }
+  }
+}
