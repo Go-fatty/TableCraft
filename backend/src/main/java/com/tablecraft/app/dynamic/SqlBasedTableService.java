@@ -23,6 +23,8 @@ public class SqlBasedTableService {
 
     private Map<String, List<String>> tableColumns = new HashMap<>();
     private Set<String> availableTables = new HashSet<>();
+    private Map<String, String> tablePrimaryKeyTypes = new HashMap<>(); // "single" or "composite"
+    private Map<String, List<String>> compositeKeys = new HashMap<>();
 
     @PostConstruct
     public void initializeTables() {
@@ -56,6 +58,7 @@ public class SqlBasedTableService {
                             "PRIMARY KEY (id))");
             availableTables.add("users");
             tableColumns.put("users", Arrays.asList("id", "name", "email", "age", "phone", "created_date"));
+            tablePrimaryKeyTypes.put("users", "single");
 
             // Categories table
             jdbcTemplate.execute(
@@ -67,6 +70,7 @@ public class SqlBasedTableService {
                             "PRIMARY KEY (id))");
             availableTables.add("categories");
             tableColumns.put("categories", Arrays.asList("id", "name", "description", "sort_order"));
+            tablePrimaryKeyTypes.put("categories", "single");
 
             // Products table
             jdbcTemplate.execute(
@@ -80,6 +84,7 @@ public class SqlBasedTableService {
                             "PRIMARY KEY (id))");
             availableTables.add("products");
             tableColumns.put("products", Arrays.asList("id", "name", "category_id", "price", "stock", "is_active"));
+            tablePrimaryKeyTypes.put("products", "single");
 
             // Order details table (ordersテーブルなしでも動作するように)
             jdbcTemplate.execute(
@@ -91,8 +96,62 @@ public class SqlBasedTableService {
                             "PRIMARY KEY (order_id, product_id))");
             availableTables.add("order_details");
             tableColumns.put("order_details", Arrays.asList("order_id", "product_id", "quantity", "unit_price"));
+            tablePrimaryKeyTypes.put("order_details", "composite");
+            compositeKeys.put("order_details", Arrays.asList("order_id", "product_id"));
 
-            System.out.println("Created 4 tables manually");
+            // Test table with 3 composite keys
+            jdbcTemplate.execute(
+                    "CREATE TABLE IF NOT EXISTS inventory_logs (" +
+                            "warehouse_id BIGINT NOT NULL, " +
+                            "product_id BIGINT NOT NULL, " +
+                            "log_date DATE NOT NULL, " +
+                            "quantity INT NOT NULL, " +
+                            "operation_type VARCHAR(20) NOT NULL, " +
+                            "notes VARCHAR(500), " +
+                            "PRIMARY KEY (warehouse_id, product_id, log_date))");
+            availableTables.add("inventory_logs");
+            tableColumns.put("inventory_logs",
+                    Arrays.asList("warehouse_id", "product_id", "log_date", "quantity", "operation_type", "notes"));
+            tablePrimaryKeyTypes.put("inventory_logs", "composite");
+            compositeKeys.put("inventory_logs", Arrays.asList("warehouse_id", "product_id", "log_date"));
+
+            // Test table with 4 composite keys
+            jdbcTemplate.execute(
+                    "CREATE TABLE IF NOT EXISTS sales_matrix (" +
+                            "region_id INT NOT NULL, " +
+                            "year_num INT NOT NULL, " +
+                            "quarter_num INT NOT NULL, " +
+                            "product_category_id INT NOT NULL, " +
+                            "total_sales DECIMAL(15,2) NOT NULL, " +
+                            "sales_count INT NOT NULL DEFAULT 0, " +
+                            "PRIMARY KEY (region_id, year_num, quarter_num, product_category_id))");
+            availableTables.add("sales_matrix");
+            tableColumns.put("sales_matrix", Arrays.asList("region_id", "year_num", "quarter_num",
+                    "product_category_id", "total_sales", "sales_count"));
+            tablePrimaryKeyTypes.put("sales_matrix", "composite");
+            compositeKeys.put("sales_matrix",
+                    Arrays.asList("region_id", "year_num", "quarter_num", "product_category_id"));
+
+            // Test table with 5 composite keys
+            jdbcTemplate.execute(
+                    "CREATE TABLE IF NOT EXISTS detailed_analytics (" +
+                            "tenant_id INT NOT NULL, " +
+                            "year_num INT NOT NULL, " +
+                            "month_num INT NOT NULL, " +
+                            "department_id INT NOT NULL, " +
+                            "metric_type_id INT NOT NULL, " +
+                            "metric_value DECIMAL(20,4) NOT NULL, " +
+                            "calculation_method VARCHAR(50), " +
+                            "last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                            "PRIMARY KEY (tenant_id, year_num, month_num, department_id, metric_type_id))");
+            availableTables.add("detailed_analytics");
+            tableColumns.put("detailed_analytics", Arrays.asList("tenant_id", "year_num", "month_num", "department_id",
+                    "metric_type_id", "metric_value", "calculation_method", "last_updated"));
+            tablePrimaryKeyTypes.put("detailed_analytics", "composite");
+            compositeKeys.put("detailed_analytics",
+                    Arrays.asList("tenant_id", "year_num", "month_num", "department_id", "metric_type_id"));
+
+            System.out.println("Created 7 tables manually (including 3 composite key test tables)");
         } catch (Exception e) {
             System.err.println("Error creating tables manually: " + e.getMessage());
             e.printStackTrace();
@@ -158,10 +217,175 @@ public class SqlBasedTableService {
         return tableColumns.getOrDefault(tableName, new ArrayList<>());
     }
 
-    // CRUD操作メソッド
+    // 主キータイプを取得
+    public String getPrimaryKeyType(String tableName) {
+        return tablePrimaryKeyTypes.getOrDefault(tableName, "single");
+    }
+
+    // 複合主キーのカラムを取得
+    public List<String> getCompositeKeyColumns(String tableName) {
+        return compositeKeys.getOrDefault(tableName, new ArrayList<>());
+    }
+
+    // 複合主キーでレコードを検索
+    public Map<String, Object> findByCompositeKey(String tableName, Map<String, Object> keyValues) {
+        if (!availableTables.contains(tableName)) {
+            throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+
+        if (!"composite".equals(getPrimaryKeyType(tableName))) {
+            throw new IllegalArgumentException("Table does not have composite primary key: " + tableName);
+        }
+
+        List<String> keyColumns = getCompositeKeyColumns(tableName);
+        List<String> conditions = new ArrayList<>();
+        List<Object> parameters = new ArrayList<>();
+
+        for (String keyColumn : keyColumns) {
+            if (keyValues.containsKey(keyColumn)) {
+                conditions.add(keyColumn + " = ?");
+                parameters.add(keyValues.get(keyColumn));
+            } else {
+                throw new IllegalArgumentException("Missing key value for: " + keyColumn);
+            }
+        }
+
+        String sql = "SELECT * FROM " + tableName + " WHERE " + String.join(" AND ", conditions);
+
+        try {
+            return jdbcTemplate.queryForMap(sql, parameters.toArray());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 複合主キーテーブル用のレコード作成
+    public Map<String, Object> createComposite(String tableName, Map<String, Object> data) {
+        if (!availableTables.contains(tableName)) {
+            throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+
+        if (!"composite".equals(getPrimaryKeyType(tableName))) {
+            throw new IllegalArgumentException("Table does not have composite primary key: " + tableName);
+        }
+
+        List<String> columns = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+        List<String> placeholders = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            columns.add(entry.getKey());
+            values.add(entry.getValue());
+            placeholders.add("?");
+        }
+
+        String sql = "INSERT INTO " + tableName + " (" + String.join(", ", columns) +
+                ") VALUES (" + String.join(", ", placeholders) + ")";
+
+        try {
+            jdbcTemplate.update(sql, values.toArray());
+            return data; // 複合主キーでは自動生成IDがないので入力データを返す
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating composite record: " + e.getMessage(), e);
+        }
+    }
+
+    // 複合主キーテーブル用のレコード更新
+    public Map<String, Object> updateComposite(String tableName, Map<String, Object> keyValues,
+            Map<String, Object> data) {
+        if (!availableTables.contains(tableName)) {
+            throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+
+        if (!"composite".equals(getPrimaryKeyType(tableName))) {
+            throw new IllegalArgumentException("Table does not have composite primary key: " + tableName);
+        }
+
+        List<String> keyColumns = getCompositeKeyColumns(tableName);
+        List<String> setParts = new ArrayList<>();
+        List<Object> updateValues = new ArrayList<>();
+        List<Object> whereValues = new ArrayList<>();
+
+        // SET部分を構築（主キー以外）
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (!keyColumns.contains(entry.getKey())) {
+                setParts.add(entry.getKey() + " = ?");
+                updateValues.add(entry.getValue());
+            }
+        }
+
+        // WHERE部分を構築
+        List<String> whereConditions = new ArrayList<>();
+        for (String keyColumn : keyColumns) {
+            if (keyValues.containsKey(keyColumn)) {
+                whereConditions.add(keyColumn + " = ?");
+                whereValues.add(keyValues.get(keyColumn));
+            } else {
+                throw new IllegalArgumentException("Missing key value for: " + keyColumn);
+            }
+        }
+
+        // 全パラメータを結合
+        List<Object> allValues = new ArrayList<>(updateValues);
+        allValues.addAll(whereValues);
+
+        String sql = "UPDATE " + tableName + " SET " + String.join(", ", setParts) +
+                " WHERE " + String.join(" AND ", whereConditions);
+
+        try {
+            int affectedRows = jdbcTemplate.update(sql, allValues.toArray());
+            if (affectedRows > 0) {
+                return findByCompositeKey(tableName, keyValues);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating composite record: " + e.getMessage(), e);
+        }
+    }
+
+    // 複合主キーテーブル用のレコード削除
+    public boolean deleteComposite(String tableName, Map<String, Object> keyValues) {
+        if (!availableTables.contains(tableName)) {
+            throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+
+        if (!"composite".equals(getPrimaryKeyType(tableName))) {
+            throw new IllegalArgumentException("Table does not have composite primary key: " + tableName);
+        }
+
+        List<String> keyColumns = getCompositeKeyColumns(tableName);
+        List<String> conditions = new ArrayList<>();
+        List<Object> parameters = new ArrayList<>();
+
+        for (String keyColumn : keyColumns) {
+            if (keyValues.containsKey(keyColumn)) {
+                conditions.add(keyColumn + " = ?");
+                parameters.add(keyValues.get(keyColumn));
+            } else {
+                throw new IllegalArgumentException("Missing key value for: " + keyColumn);
+            }
+        }
+
+        String sql = "DELETE FROM " + tableName + " WHERE " + String.join(" AND ", conditions);
+
+        try {
+            int affectedRows = jdbcTemplate.update(sql, parameters.toArray());
+            return affectedRows > 0;
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting composite record: " + e.getMessage(), e);
+        }
+    }
+
+    // CRUD操作メソッド（単一主キーおよび複合主キー対応）
     public Map<String, Object> create(String tableName, Map<String, Object> data) {
         if (!availableTables.contains(tableName)) {
             throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+
+        // 複合主キーの場合は専用メソッドを使用
+        if ("composite".equals(getPrimaryKeyType(tableName))) {
+            return createComposite(tableName, data);
         }
 
         List<String> columns = new ArrayList<>();
@@ -235,7 +459,22 @@ public class SqlBasedTableService {
             throw new IllegalArgumentException("Table not found: " + tableName);
         }
 
-        String sql = "SELECT * FROM " + tableName + " ORDER BY id";
+        String sql;
+        String primaryKeyType = getPrimaryKeyType(tableName);
+
+        if ("composite".equals(primaryKeyType)) {
+            // 複合主キーテーブルの場合、複合主キーの最初のカラムでソート
+            List<String> keyColumns = getCompositeKeyColumns(tableName);
+            if (keyColumns != null && !keyColumns.isEmpty()) {
+                sql = "SELECT * FROM " + tableName + " ORDER BY " + keyColumns.get(0);
+            } else {
+                // フォールバック: ソートなし
+                sql = "SELECT * FROM " + tableName;
+            }
+        } else {
+            // 単一主キーテーブルの場合、従来通りidでソート
+            sql = "SELECT * FROM " + tableName + " ORDER BY id";
+        }
 
         try {
             return jdbcTemplate.queryForList(sql);
