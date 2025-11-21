@@ -199,7 +199,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const options: Record<string, Array<any>> = {};
     
     for (const field of foreignKeyFields) {
-      const { table, valueColumn, displayColumn } = field.options;
+      const { table } = field.options;
       try {
         const response = await fetch('http://localhost:8082/api/sql/findAll', {
           method: 'POST',
