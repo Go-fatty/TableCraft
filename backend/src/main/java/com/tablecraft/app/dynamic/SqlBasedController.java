@@ -299,7 +299,7 @@ public class SqlBasedController {
     @PostMapping("/config/table-config")
     public ResponseEntity<String> getTableConfig(@RequestBody(required = false) Map<String, Object> request) {
         try {
-            String configContent = readResourceFile("table-config.json");
+            String configContent = readResourceFile("config/table-config.json");
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(configContent);
@@ -313,7 +313,7 @@ public class SqlBasedController {
     @PostMapping("/config/validation-config")
     public ResponseEntity<String> getValidationConfig(@RequestBody(required = false) Map<String, Object> request) {
         try {
-            String configContent = readResourceFile("validation-config.json");
+            String configContent = readResourceFile("config/validation-config.json");
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(configContent);
@@ -327,7 +327,7 @@ public class SqlBasedController {
     @PostMapping("/config/ui-config")
     public ResponseEntity<String> getUiConfig(@RequestBody(required = false) Map<String, Object> request) {
         try {
-            String configContent = readResourceFile("ui-config.json");
+            String configContent = readResourceFile("config/ui-config.json");
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(configContent);
