@@ -53,7 +53,18 @@ mysql -u root -p -D tablecraft < backend/src/main/resources/mysql-schema.sql
 ```
 
 3. **接続情報設定**  
-`backend/src/main/resources/application-dev.properties` でMySQL認証情報を設定
+`backend/src/main/resources/application-dev.properties` でMySQL認証情報を設定：
+```properties
+spring.datasource.username=root
+spring.datasource.password=your-mysql-password
+```
+
+4. **動作確認**
+```bash
+mysql -u root -p -D tablecraft
+SHOW TABLES;
+# 7つのテーブル(users, categories, products, order_details, inventory_logs, sales_matrix, detailed_analytics)が表示されればOK
+```
 
 ### 前提条件
 
@@ -98,11 +109,14 @@ npm run dev
 - **バックエンドAPI**: http://localhost:8082
 - **MySQL接続**: localhost:3306/tablecraft
   - 認証情報: application-dev.properties で設定
-  - ユーザー名: `sa`
-  - パスワード: `password`
+  - 推奨クライアント: MySQL Workbench
 
 **システム状態確認**:
 ```powershell
+# MySQLデータベースの確認
+mysql -u root -p -D tablecraft -e "SHOW TABLES;"
+mysql -u root -p -D tablecraft -e "SELECT COUNT(*) FROM tasks;"
+
 # バックエンドAPIの動作確認
 Invoke-WebRequest -Uri "http://localhost:8082/api/sql/tables" -Method POST -ContentType "application/json" -Body "{}" | ConvertFrom-Json
 
@@ -236,6 +250,33 @@ TableCraft/
 
 ## 📝 開発メモ
 
+### MySQL関連のトラブルシューティング
+
+**接続エラーが発生する場合:**
+1. MySQLサーバーが起動しているか確認
+```bash
+mysql -u root -p
+```
+
+2. `tablecraft`データベースが存在するか確認
+```sql
+SHOW DATABASES;
+USE tablecraft;
+SHOW TABLES;
+```
+
+3. `application-dev.properties`の接続情報が正しいか確認
+```properties
+spring.datasource.username=root
+spring.datasource.password=your-actual-password
+```
+
+**テーブルが見つからないエラー:**
+```bash
+# テーブル作成コマンドを再実行
+mysql -u root -p -D tablecraft < backend/src/main/resources/mysql-schema.sql
+```
+
 ### 設定ファイル更新時の手順
 1. `settings_creates`で設定ファイルを再生成
 2. 設定ファイルをSpring Bootのresourcesにコピー
@@ -244,7 +285,15 @@ TableCraft/
 ### 新しいテーブル追加時
 1. `settings_creates/examples/table-metadata.json`でメタデータを定義
 2. `settings_creates`で設定ファイルを再生成
-3. 生成されたファイルをバックエンドにコピーして再起動
+```bash
+cd settings_creates
+python src/generator.py examples/table-metadata.json
+```
+3. 生成されたSQLファイルをMySQLで実行
+```bash
+mysql -u root -p -D tablecraft < output/sql/table_definitions.sql
+```
+4. 生成された設定ファイルをバックエンドにコピーして再起動
 
 ## 🎯 機能概要
 
