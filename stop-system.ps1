@@ -1,4 +1,9 @@
-# APIServerByProperties システム停止スクリプト
+# TableCraft システム停止スクリプト
+# UTF-8 with BOM エンコーディング対応
+
+# 文字エンコーディング設定
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001 | Out-Null
 
 Write-Host "==========================================" -ForegroundColor Red
 Write-Host "TableCraft システム停止" -ForegroundColor Red

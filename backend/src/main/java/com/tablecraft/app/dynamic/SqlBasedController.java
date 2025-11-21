@@ -100,7 +100,7 @@ public class SqlBasedController {
             }
 
             Map<String, Object> result = null;
-            
+
             // 複合主キーの場合
             if ("composite".equals(sqlBasedTableService.getPrimaryKeyType(tableName))) {
                 if (keyValues == null || keyValues.isEmpty()) {
@@ -391,6 +391,15 @@ public class SqlBasedController {
     }
 
     private String readResourceFile(String fileName) throws Exception {
+        // 1. 外部設定ファイルを優先的に読み込み（本番環境）
+        java.nio.file.Path externalFilePath = java.nio.file.Paths.get("./config/" + fileName);
+        if (java.nio.file.Files.exists(externalFilePath)) {
+            System.out.println("Loading external config file: " + externalFilePath.toAbsolutePath());
+            return new String(java.nio.file.Files.readAllBytes(externalFilePath), StandardCharsets.UTF_8);
+        }
+
+        // 2. JARファイル内の設定ファイルをフォールバック（開発環境）
+        System.out.println("Loading internal config file: " + fileName);
         Resource resource = new ClassPathResource(fileName);
         try (InputStream inputStream = resource.getInputStream();
                 BufferedReader reader = new BufferedReader(

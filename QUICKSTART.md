@@ -35,7 +35,7 @@ npm run dev
 |----------|-----|------|
 | フロントエンド | http://localhost:5173 | メインアプリ |
 | バックエンドAPI | http://localhost:8082 | REST API |
-| H2コンソール | http://localhost:8082/h2-console | データベース管理 |
+| MySQL Workbench | MySQL client tool | データベース管理 |
 
 ## システム停止
 

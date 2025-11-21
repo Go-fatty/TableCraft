@@ -175,13 +175,14 @@ Invoke-RestMethod -Uri 'http://localhost:8081/api/findAll' -Method POST -Content
    - name: VARCHAR(255) NOT NULL
    - description: VARCHAR(255)
 
-## H2データベースコンソール
+## MySQLデータベース接続
 
 開発時のデータベース確認用：
-- **URL:** http://localhost:8081/h2-console
-- **JDBC URL:** `jdbc:h2:mem:testdb`
-- **ユーザー名:** `sa`
-- **パスワード:** （空白）
+- **ホスト:** localhost
+- **ポート:** 3306  
+- **データベース:** tablecraft
+- **ユーザー名:** root (application-dev.properties で設定)
+- **パスワード:** (application-dev.properties で設定)
 
 ## 新しいテーブルの追加方法
 

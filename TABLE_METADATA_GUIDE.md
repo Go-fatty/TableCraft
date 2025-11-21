@@ -50,8 +50,8 @@
 ```json
 {
   "database": {
-    "type": "h2",                                    // DB種類
-    "dialect": "org.hibernate.dialect.H2Dialect",   // Hibernateダイアレクト
+    "type": "mysql",                                // DB種類
+    "dialect": "org.hibernate.dialect.MySQL8Dialect", // Hibernateダイアレクト
     "defaultTimezone": "Asia/Tokyo"                  // タイムゾーン
   }
 }
@@ -59,7 +59,7 @@
 
 | 項目 | 必須 | 説明 |
 |------|------|------|
-| `type` | ✅ | データベース種類（h2/mysql/postgresql） |
+| `type` | ✅ | データベース種類（mysql/postgresql） |
 | `dialect` | ✅ | Hibernateダイアレクト |
 | `defaultTimezone` | ⭕ | デフォルトタイムゾーン |
 

@@ -1,0 +1,704 @@
+# TableCraft AWS デプロイ完全手順書
+
+## 📋 概要
+
+TableCraftをAWS Elastic Beanstalkに本番デプロイするための完全手順書です。  
+MySQL対応、外部設定ファイル参照、フルスタック構成（Spring Boot + React）で本格運用を想定しています。
+
+---
+
+## 🎯 デプロイ前の準備
+
+### 前提条件
+- AWS アカウント（無料枠推奨）
+- 開発環境：Windows PowerShell 5.0+、Java 11+、Maven 3.6+、Node.js 16+
+- **MySQL 8.0+** (ローカル開発・テスト用)
+- Git（ブランチ管理用）
+
+### ⚠️ 重要：MySQL環境準備
+
+**ローカル開発環境でのテスト**
+```bash
+# 1. MySQLデータベース作成
+mysql -u root -p
+CREATE DATABASE tablecraft CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 2. テーブル作成
+mysql -u root -p -D tablecraft < backend/src/main/resources/mysql-schema.sql
+
+# 3. 接続確認
+mysql -u root -p -D tablecraft
+SHOW TABLES;
+```
+
+### AWS サービス使用料金概算
+- **無料枠期間（12ヶ月）**: ほぼ無料
+- **有料期間**: 月額 $40-60（t3.micro構成）
+
+---
+
+## 🔄 Phase 1: ローカル環境でのビルド準備
+
+### 1.1 ブランチ確認・切り替え
+```powershell
+# AWS対応ブランチに切り替え
+git checkout branch/forAWS/feature
+git pull origin branch/forAWS/feature
+
+# 現在のブランチ確認
+git branch --show-current
+# 出力: branch/forAWS/feature
+```
+
+### 1.2 設定ファイルの更新（必要に応じて）
+
+**外部設定ファイルの場所**: `forDeploy/config/`
+```
+forDeploy/config/
+├── table-config.json          # テーブル定義・UI設定
+├── validation-config.json     # バリデーションルール
+├── ui-config.json            # フロントエンド設定
+├── messages.properties       # デフォルトメッセージ
+├── messages_ja.properties    # 日本語メッセージ
+└── messages_en.properties    # 英語メッセージ
+```
+
+**設定ファイル更新例**:
+```json
+// forDeploy/config/table-config.json の project 部分
+{
+  \"project\": {
+    \"name\": \"TableCraft Production\",
+    \"version\": \"1.0.0\",
+    \"defaultLanguage\": \"ja\"
+  }
+}
+```
+
+### 1.3 デプロイパッケージ作成
+
+```powershell
+# TableCraftルートディレクトリで実行
+cd C:\\work\\projects\\thinking\\TableCraft
+
+# デプロイパッケージ自動作成
+.\\build-for-aws.ps1
+```
+
+**実行内容**:
+1. **フロントエンドビルド**: React → 静的ファイル生成
+2. **静的ファイル統合**: React build → Spring Boot static resources  
+3. **バックエンドビルド**: Spring Boot → JAR生成
+4. **リソースファイルコピー**: backend/src/main/resources から設定・SQLファイルをコピー
+5. **デプロイ構成作成**: EB設定 + 外部設定ファイル + ZIP化
+
+**成功時の出力**:
+```
+=========================================
+🎉 デプロイパッケージ作成完了!
+=========================================
+
+📦 作成されたファイル:
+  • forDeploy/application.jar
+  • forDeploy/Procfile  
+  • forDeploy/.ebextensions/
+  • forDeploy/config/
+  • forDeploy-package.zip
+```
+
+### 1.4 パッケージ内容確認
+
+```powershell
+# ZIPファイル内容確認
+Expand-Archive -Path \"forDeploy-package.zip\" -DestinationPath \"temp-check\" -Force
+Get-ChildItem \"temp-check\" -Recurse
+Remove-Item \"temp-check\" -Recurse -Force
+```
+
+---
+
+## 🗄️ Phase 2: AWS RDS MySQL セットアップ
+
+### 2.1 RDS インスタンス作成
+
+**AWS Console → RDS → Create database**
+
+#### 基本設定
+```yaml
+Engine type: MySQL
+Engine version: MySQL 8.0.35
+Template: Free tier  # 無料枠適用
+```
+
+#### DB インスタンス詳細
+```yaml
+DB instance identifier: tablecraft-mysql-prod
+Master username: admin
+Master password: [強固なパスワードを設定]  # 最低12文字、大小英数記号混在
+DB name: tablecraft
+```
+
+#### インスタンス設定
+```yaml
+Burstable classes: db.t3.micro  # 無料枠対象
+Storage type: General Purpose SSD (gp3)
+Allocated storage: 20 GB
+Storage encryption: Enable
+```
+
+#### 接続設定
+```yaml
+VPC: Default VPC
+Subnet group: default
+Public access: Yes  # 初期セットアップ用、後で No に変更推奨
+VPC security group: Create new
+  Name: tablecraft-mysql-sg
+  Inbound rules: MySQL/Aurora (3306) from Everywhere (0.0.0.0/0)
+```
+
+#### バックアップ・メンテナンス
+```yaml
+Backup retention period: 7 days
+Backup window: 3:00-4:00 UTC  # JST 12:00-13:00
+Copy tags to snapshots: Enable
+Maintenance window: sun:4:00-sun:5:00 UTC  # JST 日曜 13:00-14:00
+```
+
+**作成時間**: 約10-15分
+
+### 2.2 セキュリティグループ設定
+
+**EC2 → Security Groups → tablecraft-mysql-sg**
+
+#### インバウンドルール追加
+```yaml
+Type: MySQL/Aurora
+Protocol: TCP  
+Port range: 3306
+Source: 
+  - Anywhere IPv4 (0.0.0.0/0)  # 初期設定用
+  - [後でElastic Beanstalk環境のSGに限定]
+```
+
+### 2.3 データベース初期化
+
+#### 接続情報確認
+**RDS → Databases → tablecraft-mysql-prod → Connectivity & security**
+- **Endpoint**: `tablecraft-mysql-prod.xxxxxxxxxx.ap-northeast-1.rds.amazonaws.com`
+- **Port**: `3306`
+
+#### MySQL クライアント接続
+```bash
+# MySQL Workbench、HeidiSQL、または mysql コマンドライン
+mysql -h tablecraft-mysql-prod.xxxxxxxxxx.ap-northeast-1.rds.amazonaws.com -u admin -p
+
+# パスワード入力後
+MySQL [(none)]> 
+```
+
+#### スキーマ実行
+```sql
+-- データベース選択
+USE tablecraft;
+
+-- スキーマ実行（Windows PowerShell）
+```
+
+```powershell
+# ローカルからSQLファイル実行
+$mysqlEndpoint = \"tablecraft-mysql-prod.xxxxxxxxxx.ap-northeast-1.rds.amazonaws.com\"
+$mysqlUser = \"admin\"
+$mysqlPassword = \"your-password\"
+
+# SQLファイル実行
+mysql -h $mysqlEndpoint -u $mysqlUser -p$mysqlPassword -D tablecraft < backend/src/main/resources/mysql-schema.sql
+```
+
+#### 実行確認
+```sql
+-- テーブル一覧確認
+SHOW TABLES;
+
+-- 結果例:
+-- +---------------------+
+-- | Tables_in_tablecraft|
+-- +---------------------+
+-- | categories          |
+-- | detailed_analytics  |
+-- | inventory_logs      |
+-- | order_details       |
+-- | products            |
+-- | sales_matrix        |
+-- | users               |
+-- +---------------------+
+
+-- テーブル構造確認
+DESCRIBE users;
+DESCRIBE order_details;  # 複合主キー確認
+```
+
+---
+
+## 🚀 Phase 3: Elastic Beanstalk デプロイ
+
+### 3.1 Elastic Beanstalk CLI セットアップ（推奨）
+
+#### EB CLI インストール
+```powershell
+# Python pip 経由
+pip install awsebcli
+
+# 確認
+eb --version
+# 出力例: EB CLI 3.20.10 (Python 3.9.x)
+```
+
+#### AWS 認証情報設定
+```powershell
+# AWS CLI 設定（未設定の場合）
+aws configure
+# AWS Access Key ID: [IAMから取得]
+# AWS Secret Access Key: [IAMから取得] 
+# Default region name: ap-northeast-1
+# Default output format: json
+```
+
+### 3.2 EB アプリケーション初期化
+
+```powershell
+# forDeploy ディレクトリに移動
+cd forDeploy
+
+# EB初期化
+eb init
+```
+
+#### 対話式設定内容
+```
+Select a default region: 10) ap-northeast-1
+Application Name [forDeploy]: tablecraft
+Platform: Java 11 running on 64bit Amazon Linux 2
+CodeCommit: n
+SSH: y  # トラブルシューティング用推奨
+Keypair: [既存のキーペアを選択、または新規作成]
+```
+
+### 3.3 EB 環境作成・設定
+
+#### 環境作成
+```powershell
+# 本番環境作成
+eb create tablecraft-prod
+
+# 作成中... （5-10分）
+# Environment details for: tablecraft-prod
+# Application name: tablecraft
+# Region: ap-northeast-1
+# Platform: arn:aws:elasticbeanstalk:ap-northeast-1::platform/Java 11 running on 64bit Amazon Linux 2
+```
+
+#### 環境変数設定
+```powershell
+# RDS接続情報設定
+eb setenv RDS_HOSTNAME=tablecraft-mysql-prod.xxxxxxxxxx.ap-northeast-1.rds.amazonaws.com
+eb setenv RDS_DB_NAME=tablecraft  
+eb setenv RDS_USERNAME=admin
+eb setenv RDS_PASSWORD=your-secure-password
+eb setenv RDS_PORT=3306
+
+# アプリケーション設定
+eb setenv SPRING_PROFILES_ACTIVE=prod
+eb setenv JAVA_TOOL_OPTIONS=\"-Dfile.encoding=UTF-8 -Duser.timezone=Asia/Tokyo\"
+```
+
+### 3.4 デプロイ実行
+
+#### 初回デプロイ
+```powershell
+# アプリケーションデプロイ
+eb deploy
+
+# デプロイ中... （3-5分）
+# 2025-11-21 12:00:00    INFO    Environment update is starting.
+# 2025-11-21 12:00:30    INFO    Deploying new version to instance(s).
+# 2025-11-21 12:03:45    INFO    Application update completed successfully.
+```
+
+#### デプロイ状況確認
+```powershell
+# 環境状態確認
+eb status
+
+# 出力例:
+# Environment details for: tablecraft-prod
+# Application name: tablecraft
+# Environment name: tablecraft-prod
+# Environment id: e-xxxxxxxxxx
+# Platform: arn:aws:elasticbeanstalk:ap-northeast-1::platform/Java 11 running on 64bit Amazon Linux 2/4.x.x
+# Status: Ready
+# Health: Green
+```
+
+### 3.5 アプリケーションアクセス
+
+#### URL確認・アクセス
+```powershell
+# アプリケーションURL取得
+eb status | Select-String \"CNAME\"
+
+# ブラウザで開く
+eb open
+```
+
+**期待されるURL形式**: `http://tablecraft-prod.ap-northeast-1.elasticbeanstalk.com`
+
+---
+
+## ✅ Phase 4: 動作確認・検証
+
+### 4.1 ヘルスチェック確認
+
+#### APIヘルスチェック
+```powershell
+# PowerShellでAPI確認
+$ebUrl = \"http://tablecraft-prod.ap-northeast-1.elasticbeanstalk.com\"
+$response = Invoke-RestMethod -Uri \"$ebUrl/api/health\" -Method GET
+$response | ConvertTo-Json
+```
+
+#### 期待される応答
+```json
+{
+  \"status\": \"UP\",
+  \"database\": \"Connected\", 
+  \"timestamp\": \"2025-11-21T12:00:00Z\",
+  \"environment\": \"prod\",
+  \"externalConfig\": \"Available\"
+}
+```
+
+### 4.2 データベース接続確認
+
+#### テーブル一覧API
+```powershell
+$response = Invoke-RestMethod -Uri \"$ebUrl/api/sql/tables\" -Method POST -ContentType \"application/json\" -Body \"{}\"
+$response | ConvertTo-Json
+```
+
+#### 期待される応答
+```json
+{
+  \"tables\": [\"users\", \"categories\", \"products\", \"order_details\", \"inventory_logs\", \"sales_matrix\", \"detailed_analytics\"],
+  \"count\": 7
+}
+```
+
+### 4.3 外部設定ファイル確認
+
+#### 設定ファイル状態確認
+```powershell
+$response = Invoke-RestMethod -Uri \"$ebUrl/api/info\" -Method GET
+$response.externalConfigFiles | ConvertTo-Json
+```
+
+#### 期待される応答
+```json
+{
+  \"table-config.json\": true,
+  \"validation-config.json\": true, 
+  \"ui-config.json\": true
+}
+```
+
+### 4.4 CRUD操作テスト
+
+#### データ作成テスト
+```powershell
+# ユーザー作成
+$userData = @{
+  name = \"Test User\"
+  email = \"test@example.com\"
+  age = 25
+  phone = \"090-1234-5678\"
+} | ConvertTo-Json
+
+$createResponse = Invoke-RestMethod -Uri \"$ebUrl/api/sql/create\" -Method POST -ContentType \"application/json\" -Body @\"
+{
+  \"tableName\": \"users\",
+  \"data\": $userData
+}
+\"@
+
+Write-Host \"✅ ユーザー作成成功: ID $($createResponse.data.id)\"
+```
+
+#### データ取得テスト
+```powershell
+$listResponse = Invoke-RestMethod -Uri \"$ebUrl/api/sql/findAll\" -Method POST -ContentType \"application/json\" -Body '{\"tableName\":\"users\"}'
+Write-Host \"📊 ユーザー件数: $($listResponse.data.Count)\"
+```
+
+### 4.5 複合主キーテスト
+
+#### 複合主キーテーブル動作確認
+```powershell
+# order_details テーブル確認
+$orderDetailsResponse = Invoke-RestMethod -Uri \"$ebUrl/api/sql/findAll\" -Method POST -ContentType \"application/json\" -Body '{\"tableName\":\"order_details\"}'
+Write-Host \"📋 注文明細テーブル: $($orderDetailsResponse.data.Count) 件\"
+
+# 詳細分析テーブル確認（5つの複合キー）
+$analyticsResponse = Invoke-RestMethod -Uri \"$ebUrl/api/sql/findAll\" -Method POST -ContentType \"application/json\" -Body '{\"tableName\":\"detailed_analytics\"}'
+Write-Host \"📊 分析テーブル: $($analyticsResponse.data.Count) 件\"
+```
+
+### 4.6 フロントエンド確認
+
+#### React アプリケーション動作確認
+1. **ブラウザアクセス**: `eb open` または直接URL
+2. **画面要素確認**:
+   - テーブル一覧表示
+   - データ追加フォーム
+   - 複合主キーテーブルの表示
+3. **操作確認**:
+   - 新規データ作成
+   - データ編集・削除
+   - バリデーション動作
+
+---
+
+## 🔧 Phase 5: 運用設定・最適化
+
+### 5.1 セキュリティ強化
+
+#### RDS セキュリティグループ限定
+```powershell
+# Elastic Beanstalk環境のセキュリティグループID取得
+eb config | Select-String \"SecurityGroup\"
+
+# RDSセキュリティグループ更新（AWS Console）
+# EC2 → Security Groups → tablecraft-mysql-sg
+# Inbound rules: 
+#   - 0.0.0.0/0 削除
+#   - EB環境のSGからの3306アクセスのみ許可
+```
+
+#### HTTPS設定（オプション）
+```powershell
+# SSL証明書設定
+# AWS Certificate Manager でドメイン証明書取得
+# Load Balancer でHTTPS Listener設定
+eb config
+# aws:elbv2:listener:443 設定追加
+```
+
+### 5.2 監視・ログ設定
+
+#### CloudWatch ログ設定
+```yaml
+# .ebextensions/03_cloudwatch.config 追加
+option_settings:
+  aws:elasticbeanstalk:cloudwatch:logs:
+    StreamLogs: true
+    DeleteOnTerminate: false
+    RetentionInDays: 30
+  aws:elasticbeanstalk:cloudwatch:logs:health:
+    HealthStreamingEnabled: true
+    DeleteOnTerminate: false
+    RetentionInDays: 7
+```
+
+#### アプリケーションログ確認
+```powershell
+# リアルタイムログ
+eb logs --all
+
+# ファイル出力
+eb logs --all > tablecraft-logs.txt
+```
+
+### 5.3 パフォーマンス最適化
+
+#### Auto Scaling設定
+```powershell
+eb config
+```
+
+```yaml
+# 編集内容例
+aws:autoscaling:asg:
+  MinSize: 1
+  MaxSize: 3
+aws:autoscaling:trigger:
+  MeasureName: CPUUtilization
+  Unit: Percent
+  UpperThreshold: 80
+  LowerThreshold: 20
+```
+
+#### データベース接続プール調整
+```properties
+# application-prod.properties 更新後再デプロイ
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=2
+spring.datasource.hikari.connection-timeout=30000
+```
+
+---
+
+## 🔄 Phase 6: 継続運用・メンテナンス
+
+### 6.1 設定ファイル更新手順
+
+#### 設定ファイル変更時の更新手順
+```powershell
+# 1. 設定ファイル編集
+# forDeploy/config/table-config.json 等を編集
+
+# 2. 設定のみ再デプロイ（高速）
+.\\build-for-aws.ps1 -SkipFrontendBuild -SkipBackendBuild
+eb deploy
+
+# 3. 動作確認
+$response = Invoke-RestMethod -Uri \"$ebUrl/api/info\" -Method GET
+$response.externalConfigFiles
+```
+
+### 6.2 アプリケーション更新手順
+
+#### コード変更時の更新手順
+```powershell
+# 1. ソースコード変更
+# backend/src/ または frontend/src/ を編集
+
+# 2. フルビルド＆デプロイ
+.\\build-for-aws.ps1
+eb deploy
+
+# 3. 動作確認
+eb health
+$response = Invoke-RestMethod -Uri \"$ebUrl/api/health\"
+```
+
+### 6.3 データベースメンテナンス
+
+#### 定期バックアップ確認
+```powershell
+# RDS スナップショット確認（AWS CLI）
+aws rds describe-db-snapshots --db-instance-identifier tablecraft-mysql-prod
+```
+
+#### データベース更新（スキーマ変更時）
+```sql
+-- 新しいテーブル・カラム追加例
+ALTER TABLE users ADD COLUMN last_login DATETIME NULL;
+
+-- インデックス追加例  
+CREATE INDEX idx_users_last_login ON users(last_login);
+```
+
+### 6.4 トラブルシューティング
+
+#### よくある問題と解決法
+
+**1. データベース接続エラー**
+```powershell
+# 環境変数確認
+eb printenv | Select-String \"RDS\"
+
+# セキュリティグループ確認
+aws ec2 describe-security-groups --group-names tablecraft-mysql-sg
+
+# 解決: セキュリティグループの3306ポート開放確認
+```
+
+**2. 外部設定ファイル読み込み失敗**
+```powershell
+# SSH接続でファイル確認
+eb ssh
+sudo ls -la /opt/elasticbeanstalk/deployment/app/config/
+sudo cat /opt/elasticbeanstalk/deployment/app/config/table-config.json
+
+# 解決: .ebextensions/02_external_config.config 確認
+```
+
+**3. メモリ不足エラー**
+```powershell
+# JVM設定確認
+eb config | Select-String \"JVM\"
+
+# 解決: インスタンスタイプ変更 t3.micro → t3.small
+```
+
+**4. デプロイ失敗**
+```powershell
+# 詳細エラー確認
+eb logs --all | Select-String \"ERROR\"
+
+# 強制再デプロイ
+eb deploy --force
+```
+
+---
+
+## 💰 運用コスト管理
+
+### 無料枠での運用
+- **EC2 t3.micro**: 750時間/月（1インスタンス常時稼働）
+- **RDS db.t3.micro**: 750時間/月
+- **Elastic Beanstalk**: 無料（EC2料金のみ）
+- **データ転送**: 1GB/月まで無料
+
+### 有料期間のコスト削減
+```yaml
+# 開発環境用の自動停止設定
+# .ebextensions/04_auto_shutdown.config
+commands:
+  01_setup_cron:
+    command: |
+      echo \"0 18 * * * root /opt/elasticbeanstalk/bin/stop-environment\" >> /etc/crontab
+      echo \"0 9 * * * root /opt/elasticbeanstalk/bin/start-environment\" >> /etc/crontab
+```
+
+---
+
+## 📋 チェックリスト
+
+### デプロイ前チェックリスト
+- [ ] ブランチが `branch/forAWS/feature` になっている
+- [ ] `build-for-aws.ps1` が正常実行される
+- [ ] `forDeploy-package.zip` が生成される
+- [ ] RDS MySQL インスタンスが作成済み
+- [ ] `backend/src/main/resources/mysql-schema.sql` でテーブル作成済み
+
+### デプロイ後チェックリスト  
+- [ ] `/api/health` が `{\"status\":\"UP\"}` を返す
+- [ ] `/api/info` で外部設定ファイル読み込み確認
+- [ ] フロントエンドが正常表示される
+- [ ] CRUD操作が正常動作する
+- [ ] 複合主キーテーブルが正常動作する
+
+### セキュリティチェックリスト
+- [ ] RDS パスワードが強固である
+- [ ] RDS セキュリティグループが適切に制限されている
+- [ ] 環境変数で機密情報を管理している
+- [ ] HTTPS化を検討している（本格運用時）
+
+---
+
+## 🆘 サポート・リソース
+
+### 公式ドキュメント
+- [AWS Elastic Beanstalk Developer Guide](https://docs.aws.amazon.com/elasticbeanstalk/)
+- [Amazon RDS User Guide](https://docs.aws.amazon.com/rds/)
+- [Spring Boot on AWS](https://spring.io/guides/gs/spring-boot-docker/)
+
+### トラブルシューティング時の連絡先
+- AWS Support（有料プラン）
+- AWS Developer Forums
+- Stack Overflow (`aws-elastic-beanstalk`, `amazon-rds`)
+
+---
+
+*最終更新: 2025年11月21日*  
+*対象バージョン: TableCraft 1.0.0*  
+*対象ブランチ: branch/forAWS/feature*

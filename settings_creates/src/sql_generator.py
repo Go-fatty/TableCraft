@@ -68,7 +68,7 @@ class SQLGenerator:
     
     def _generate_create_tables(self, metadata: Dict[str, Any]) -> str:
         """CREATE TABLE文を生成"""
-        database_type = metadata.get('database', {}).get('type', 'h2')
+        database_type = metadata.get('database', {}).get('type', 'mysql')
         tables = metadata.get('tables', {})
         
         sql_parts = []
@@ -130,7 +130,12 @@ class SQLGenerator:
                 column_sqls.append(f"    {pk_constraint}")
         
         sql_lines.append(",\n".join(column_sqls))
-        sql_lines.append(");")
+        
+        # MySQL用テーブルオプション
+        if database_type.lower() == 'mysql':
+            sql_lines.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;")
+        else:
+            sql_lines.append(");")
         
         return "\n".join(sql_lines)
     
@@ -146,9 +151,7 @@ class SQLGenerator:
         
         # AUTO_INCREMENT / IDENTITY
         if constraints.get('autoIncrement', False):
-            if database_type.lower() == 'h2':
-                parts.append("AUTO_INCREMENT")
-            elif database_type.lower() == 'mysql':
+            if database_type.lower() == 'mysql':
                 parts.append("AUTO_INCREMENT")
             elif database_type.lower() == 'postgresql':
                 # PostgreSQLの場合はSERIALを使用
@@ -173,10 +176,17 @@ class SQLGenerator:
         default_value = constraints.get('default')
         if default_value is not None:
             if isinstance(default_value, str):
-                if default_value.upper() in ['CURRENT_TIMESTAMP', 'NOW()', 'NULL']:
+                mysql_functions = ['CURRENT_TIMESTAMP', 'NOW()', 'NULL', 'CURRENT_DATE', 'CURRENT_TIME']
+                if default_value.upper() in mysql_functions:
                     parts.append(f"DEFAULT {default_value}")
                 else:
                     parts.append(f"DEFAULT '{default_value}'")
+            elif isinstance(default_value, bool):
+                # MySQL用BOOLEAN値変換
+                if database_type.lower() == 'mysql':
+                    parts.append(f"DEFAULT {'TRUE' if default_value else 'FALSE'}")
+                else:
+                    parts.append(f"DEFAULT {default_value}")
             else:
                 parts.append(f"DEFAULT {default_value}")
         
@@ -203,9 +213,18 @@ class SQLGenerator:
                 return f"{data_type}({col_def['precision']})"
         
         # データベース特有の型変換
-        if database_type.lower() == 'h2':
+        if database_type.lower() == 'mysql':
+            # MySQL用の型変換
             if data_type_upper == 'TEXT':
+                return 'TEXT'
+            elif data_type_upper == 'LONGTEXT':
                 return 'LONGTEXT'
+            elif data_type_upper == 'VARCHAR' and 'length' not in col_def:
+                return 'VARCHAR(255)'  # MySQLではデフォルト長さ必須
+            elif data_type_upper == 'DATETIME':
+                return 'DATETIME'
+            elif data_type_upper == 'TIMESTAMP':
+                return 'TIMESTAMP'
         elif database_type.lower() == 'postgresql':
             if data_type_upper == 'LONGTEXT':
                 return 'TEXT'

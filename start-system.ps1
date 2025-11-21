@@ -1,4 +1,16 @@
-# APIServerByProperties システム起動スクリプト (PowerShell版)
+# TableCraft システム起動スクリプト (PowerShell版)
+# UTF-8 with BOM エンコーディング対応
+
+# PowerShell実行ポリシー確認
+if ((Get-ExecutionPolicy) -eq "Restricted") {
+    Write-Warning "PowerShell実行ポリシーが制限されています。"
+    Write-Host "管理者として以下を実行してください: Set-ExecutionPolicy RemoteSigned" -ForegroundColor Yellow
+    exit 1
+}
+
+# 文字エンコーディング設定
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001 | Out-Null
 
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "TableCraft システム起動スクリプト" -ForegroundColor Cyan  
@@ -6,9 +18,14 @@ Write-Host "==========================================" -ForegroundColor Cyan
 
 try {
     Write-Host ""
-    Write-Host "[1/4] 設定ファイルコピー中..." -ForegroundColor Yellow
+    Write-Host "[1/4] 設定ファイル確認中..." -ForegroundColor Yellow
     Set-Location "backend"
-    Copy-Item "..\settings_create\output\frontend\*" "src\main\resources\" -Force
+    
+    if (Test-Path "src\main\resources\config\table-config.json") {
+        Write-Host "      ✓ 設定ファイル確認完了" -ForegroundColor Green
+    } else {
+        Write-Warning "      設定ファイルが見つかりません"
+    }
     Write-Host "     完了: 設定ファイルをコピーしました" -ForegroundColor Green
 
     Write-Host ""
@@ -40,7 +57,7 @@ try {
     Write-Host "アクセス方法:" -ForegroundColor White
     Write-Host "  フロントエンド: " -NoNewline; Write-Host "http://localhost:5173" -ForegroundColor Yellow
     Write-Host "  バックエンドAPI: " -NoNewline; Write-Host "http://localhost:8082" -ForegroundColor Yellow
-    Write-Host "  H2コンソール: " -NoNewline; Write-Host "http://localhost:8082/h2-console" -ForegroundColor Yellow
+    Write-Host "  MySQL接続: " -NoNewline; Write-Host "localhost:3306/tablecraft" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "システム停止: " -NoNewline; Write-Host "taskkill /F /IM java.exe" -ForegroundColor Red
     Write-Host "==========================================" -ForegroundColor Cyan
