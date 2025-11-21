@@ -1,6 +1,6 @@
--- Generated CREATE TABLE statements for h2
+-- Generated CREATE TABLE statements for mysql
 -- Project: AutoStack Builder Sample
--- Generated at: 2025-11-18 13:09:57
+-- Generated at: 2025-11-21 14:06:24
 
 -- ユーザー
 -- Users
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     age INT,
     phone VARCHAR(20),
     created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- カテゴリー
 -- Categories
@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS categories (
     id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    description LONGTEXT,
+    description TEXT,
     sort_order INT DEFAULT '0'
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 商品
 -- Products
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS products (
     price DECIMAL(10,2) NOT NULL,
     stock INT DEFAULT '0',
     is_active BOOLEAN NOT NULL DEFAULT 'true'
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 注文明細
 -- Order Details
@@ -42,10 +42,10 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS order_details (
     order_id BIGINT NOT NULL PRIMARY KEY,
     product_id BIGINT NOT NULL PRIMARY KEY,
-    quantity INT NOT NULL DEFAULT '1',
+    quantity INT NOT NULL DEFAULT 1,
     unit_price DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (order_id, product_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- Generated INDEX statements
