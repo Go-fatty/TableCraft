@@ -160,6 +160,18 @@ public class ConfigBasedTableService {
     }
 
     /**
+     * 主キーによるレコード検索（リスト形式で返却）
+     * autofill用エンドポイント向け
+     */
+    public List<Map<String, Object>> findByPrimaryKey(String tableName, Map<String, Object> primaryKeyValues) {
+        Map<String, Object> result = findById(tableName, primaryKeyValues);
+        if (result == null) {
+            return new ArrayList<>();
+        }
+        return Collections.singletonList(result);
+    }
+
+    /**
      * レコードの挿入
      */
     public int insert(String tableName, Map<String, Object> data) {

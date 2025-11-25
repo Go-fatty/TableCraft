@@ -145,15 +145,24 @@ class FrontendGenerator:
         validation = col_def.get('validation', {})
         constraints = col_def.get('constraints', {})
         
+        # hidden フィールドの場合は type を hidden に設定
+        input_type = ui.get('inputType', 'text')
+        if ui.get('hidden', False):
+            input_type = 'hidden'
+        
         field = {
             "name": col_name,
-            "type": ui.get('inputType', 'text'),
+            "type": input_type,
             "label": col_def.get('labels', {}),
             "placeholder": ui.get('placeholder', {}),
             "required": validation.get('required', not constraints.get('nullable', True)),
             "readonly": ui.get('readonly', False) or constraints.get('autoIncrement', False),
             "disabled": ui.get('disabled', False)
         }
+        
+        # hidden プロパティを追加（UI表示制御用）
+        if ui.get('hidden', False):
+            field["hidden"] = True
         
         # 入力タイプ別の追加設定
         input_type = field["type"]
@@ -193,6 +202,26 @@ class FrontendGenerator:
         # バリデーション設定
         if validation:
             field["validation"] = validation.copy()
+        
+        # Autofill 設定（メタデータに autofill プロパティがある場合）
+        autofill = col_def.get('autofill')
+        if autofill:
+            field["autofill"] = {
+                "enabled": autofill.get('enabled', True),
+                "sourceTable": autofill.get('sourceTable'),
+                "sourceColumn": autofill.get('sourceColumn'),
+                "mappings": autofill.get('mappings', [])
+            }
+        
+        # AutoCalculate 設定（メタデータに autoCalculate プロパティがある場合）
+        auto_calculate = col_def.get('autoCalculate')
+        if auto_calculate:
+            field["autoCalculate"] = {
+                "enabled": auto_calculate.get('enabled', True),
+                "formula": auto_calculate.get('formula'),
+                "targetField": auto_calculate.get('targetField'),
+                "triggerFields": auto_calculate.get('triggerFields', [])
+            }
         
         return field
     

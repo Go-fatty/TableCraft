@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated": "2025-11-25 10:12:31",
+  "generated": "2025-11-25 13:57:45",
   "project": {
     "name": "AutoStack Builder Sample",
     "version": "1.0.0",
@@ -909,7 +909,8 @@
           "type": "BIGINT",
           "constraints": {
             "nullable": false,
-            "primaryKey": true
+            "primaryKey": true,
+            "autoIncrement": true
           },
           "labels": {
             "ja": "注文ID",
@@ -917,8 +918,8 @@
           },
           "ui": {
             "inputType": "select",
-            "hidden": false,
-            "readonly": false
+            "hidden": true,
+            "readonly": true
           },
           "validation": {
             "required": true
@@ -939,11 +940,15 @@
             "primaryKey": true
           },
           "labels": {
-            "ja": "商品ID",
-            "en": "Product ID"
+            "ja": "商品",
+            "en": "Product"
           },
           "ui": {
             "inputType": "select",
+            "placeholder": {
+              "ja": "商品を選択してください",
+              "en": "Select a product"
+            },
             "hidden": false,
             "readonly": false
           },
@@ -972,6 +977,10 @@
           "ui": {
             "inputType": "number",
             "min": 1,
+            "placeholder": {
+              "ja": "数量を入力",
+              "en": "Enter quantity"
+            },
             "hidden": false,
             "readonly": false
           },
@@ -988,15 +997,14 @@
             "nullable": false
           },
           "labels": {
-            "ja": "単価",
-            "en": "Unit Price"
+            "ja": "金額（数量×単価）",
+            "en": "Total Amount (Quantity × Unit Price)"
           },
           "ui": {
             "inputType": "number",
             "step": "0.01",
-            "min": 0,
-            "hidden": false,
-            "readonly": false
+            "readonly": true,
+            "hidden": false
           },
           "validation": {
             "required": true,
@@ -1007,36 +1015,16 @@
       ],
       "formFields": [
         {
-          "name": "order_id",
-          "type": "select",
-          "label": {
-            "ja": "注文ID",
-            "en": "Order ID"
-          },
-          "placeholder": {},
-          "required": true,
-          "readonly": false,
-          "disabled": false,
-          "options": {
-            "type": "foreign_key",
-            "table": "orders",
-            "valueColumn": "id",
-            "displayColumn": "id",
-            "allowNull": false,
-            "nullLabel": {}
-          },
-          "validation": {
-            "required": true
-          }
-        },
-        {
           "name": "product_id",
           "type": "select",
           "label": {
-            "ja": "商品ID",
-            "en": "Product ID"
+            "ja": "商品",
+            "en": "Product"
           },
-          "placeholder": {},
+          "placeholder": {
+            "ja": "商品を選択してください",
+            "en": "Select a product"
+          },
           "required": true,
           "readonly": false,
           "disabled": false,
@@ -1045,11 +1033,26 @@
             "table": "products",
             "valueColumn": "id",
             "displayColumn": "name",
-            "allowNull": false,
-            "nullLabel": {}
+            "allowNull": true,
+            "nullLabel": {
+              "ja": "商品を選択してください",
+              "en": "Select a product"
+            }
           },
           "validation": {
             "required": true
+          },
+          "autofill": {
+            "enabled": true,
+            "sourceTable": "products",
+            "sourceColumn": "id",
+            "mappings": [
+              {
+                "from": "price",
+                "to": "_product_base_price",
+                "overwritable": true
+              }
+            ]
           }
         },
         {
@@ -1059,7 +1062,10 @@
             "ja": "数量",
             "en": "Quantity"
           },
-          "placeholder": {},
+          "placeholder": {
+            "ja": "数量を入力",
+            "en": "Enter quantity"
+          },
           "required": true,
           "readonly": false,
           "disabled": false,
@@ -1067,18 +1073,27 @@
           "validation": {
             "required": true,
             "min": 1
+          },
+          "autoCalculate": {
+            "enabled": true,
+            "formula": "_product_base_price * quantity",
+            "targetField": "unit_price",
+            "triggerFields": [
+              "quantity",
+              "_product_base_price"
+            ]
           }
         },
         {
           "name": "unit_price",
           "type": "number",
           "label": {
-            "ja": "単価",
-            "en": "Unit Price"
+            "ja": "金額（数量×単価）",
+            "en": "Total Amount (Quantity × Unit Price)"
           },
           "placeholder": {},
           "required": true,
-          "readonly": false,
+          "readonly": true,
           "disabled": false,
           "min": 0,
           "step": "0.01",
@@ -1090,26 +1105,10 @@
       ],
       "listColumns": [
         {
-          "name": "order_id",
-          "label": {
-            "ja": "注文ID",
-            "en": "Order ID"
-          },
-          "type": "BIGINT",
-          "sortable": true,
-          "searchable": true,
-          "width": "auto",
-          "align": "left",
-          "foreignKey": {
-            "table": "orders",
-            "displayColumn": "id"
-          }
-        },
-        {
           "name": "product_id",
           "label": {
-            "ja": "商品ID",
-            "en": "Product ID"
+            "ja": "商品",
+            "en": "Product"
           },
           "type": "BIGINT",
           "sortable": true,
@@ -1136,8 +1135,8 @@
         {
           "name": "unit_price",
           "label": {
-            "ja": "単価",
-            "en": "Unit Price"
+            "ja": "金額（数量×単価）",
+            "en": "Total Amount (Quantity × Unit Price)"
           },
           "type": "DECIMAL",
           "sortable": true,

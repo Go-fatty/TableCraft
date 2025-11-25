@@ -1,5 +1,5 @@
 // Generated TypeScript type definitions
-// Generated at: 2025-11-21 14:06:24
+// Generated at: 2025-11-25 13:57:45
 
 // Common types
 export type ValidationRule = {
@@ -96,7 +96,6 @@ export interface OrderDetails {
 }
 
 export interface OrderDetailsForm {
-  order_id: number;
   product_id: number;
   quantity: number;
   unit_price: number;

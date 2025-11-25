@@ -565,6 +565,9 @@ public class ConfigBasedController {
     /**
      * データ一覧取得
      */
+    /**
+     * データ一覧取得
+     */
     @GetMapping("/data/{tableName}")
     public ResponseEntity<Map<String, Object>> getData(@PathVariable String tableName,
             @RequestParam(defaultValue = "0") int page,
@@ -586,6 +589,37 @@ public class ConfigBasedController {
             pageData.put("number", page);
 
             response.put("data", pageData);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * 単一データ取得（autofill用）
+     */
+    @GetMapping("/data/{tableName}/{id}")
+    public ResponseEntity<Map<String, Object>> getDataById(@PathVariable String tableName,
+            @PathVariable Long id) {
+        try {
+            Map<String, Object> idMap = new HashMap<>();
+            idMap.put("id", id);
+
+            List<Map<String, Object>> results = configBasedTableService.findByPrimaryKey(tableName, idMap);
+
+            Map<String, Object> response = new HashMap<>();
+            if (results != null && !results.isEmpty()) {
+                response.put("success", true);
+                response.put("data", results.get(0));
+            } else {
+                response.put("success", false);
+                response.put("error", "Record not found");
+                return ResponseEntity.notFound().build();
+            }
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();

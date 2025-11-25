@@ -212,10 +212,147 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   };
 
   const handleInputChange = (fieldName: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [fieldName]: value
-    }));
+    // Autofill機能を先に実行（非同期）
+    if (tableConfig && tableConfig.tables[tableName]) {
+      const currentTable = tableConfig.tables[tableName];
+      const changedField = currentTable.formFields?.find(f => f.name === fieldName);
+      
+      if (changedField?.autofill?.enabled && value) {
+        // Autofillを実行し、完了後にformDataを更新
+        handleAutofill(changedField, value).then(() => {
+          // Autofill完了後に自動計算を実行
+          setFormData(prev => {
+            const newData = { ...prev, [fieldName]: value };
+            return applyAutoCalculate(newData, fieldName, currentTable);
+          });
+        });
+        return; // Autofillがある場合はここで終了
+      }
+    }
+
+    // Autofillがない場合は通常の更新
+    setFormData(prev => {
+      const newData = { ...prev, [fieldName]: value };
+      
+      // AutoCalculate機能: フィールド変更後に自動計算を実行
+      if (tableConfig && tableConfig.tables[tableName]) {
+        const currentTable = tableConfig.tables[tableName];
+        return applyAutoCalculate(newData, fieldName, currentTable);
+      }
+      
+      return newData;
+    });
+  };
+
+  // AutoCalculate適用を別関数に分離
+  const applyAutoCalculate = (data: Record<string, any>, changedFieldName: string, currentTable: any) => {
+    const newData = { ...data };
+    
+    // 変更されたフィールドが自動計算のトリガーになっているかチェック
+    currentTable.formFields?.forEach((field: FormField) => {
+      if (field.autoCalculate?.enabled) {
+        const { triggerFields, formula, targetField } = field.autoCalculate;
+        
+        // このフィールドがトリガーに含まれているか確認
+        if (triggerFields?.includes(changedFieldName)) {
+          const calculatedValue = evaluateFormula(formula, newData);
+          if (calculatedValue !== null && calculatedValue !== undefined && !isNaN(calculatedValue)) {
+            newData[targetField] = calculatedValue;
+            console.log(`AutoCalculate: ${targetField} = ${calculatedValue} (formula: ${formula})`);
+          } else {
+            console.log(`AutoCalculate: Cannot calculate ${targetField} yet (missing values)`);
+          }
+        }
+      }
+    });
+    
+    return newData;
+  };
+
+  // 数式を評価する関数
+  const evaluateFormula = (formula: string, data: Record<string, any>): number | null => {
+    try {
+      // 数式内の変数を実際の値に置換
+      let expression = formula;
+      
+      // フィールド名を値に置換
+      Object.keys(data).forEach(key => {
+        const value = data[key];
+        if (value !== null && value !== undefined && value !== '') {
+          // 数値に変換可能な場合のみ置換
+          const numValue = Number(value);
+          if (!isNaN(numValue)) {
+            expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), String(numValue));
+          }
+        }
+      });
+      
+      // 全ての変数が置換されたかチェック（アルファベット+アンダースコアが残っていないか）
+      if (/[a-zA-Z_]/.test(expression)) {
+        // まだ変数が残っている場合は計算しない
+        return null;
+      }
+      
+      // 安全な数式のみ評価（数値と演算子のみ許可）
+      if (!/^[\d\s+\-*/().]+$/.test(expression)) {
+        console.warn('Invalid formula expression:', expression);
+        return null;
+      }
+      
+      // Functionを使って安全に評価
+      const result = new Function(`return ${expression}`)();
+      return typeof result === 'number' ? result : null;
+    } catch (error) {
+      console.error('Formula evaluation error:', error);
+      return null;
+    }
+  };
+
+  const handleAutofill = async (field: FormField, selectedValue: any): Promise<void> => {
+    const { autofill } = field;
+    if (!autofill || !autofill.enabled) return;
+
+    try {
+      // 選択された外部キーのレコードを取得
+      const response = await fetch(
+        `http://localhost:8082/api/config/data/${autofill.sourceTable}/${selectedValue}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const sourceRecord = result.data;
+          
+          // mappingsに基づいて値を自動設定
+          const updates: Record<string, any> = {};
+          autofill.mappings.forEach((mapping: any) => {
+            const sourceValue = sourceRecord[mapping.from];
+            if (sourceValue !== undefined && sourceValue !== null) {
+              // overwritableがfalseで既に値が入っている場合はスキップ
+              if (!mapping.overwritable && formData[mapping.to]) {
+                return;
+              }
+              updates[mapping.to] = sourceValue;
+              console.log(`Autofill: ${mapping.to} = ${sourceValue} (from ${mapping.from})`);
+            }
+          });
+
+          // 一括更新
+          if (Object.keys(updates).length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              ...updates
+            }));
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Autofill failed:', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -232,10 +369,34 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             continue;
           }
           
-          // table-configでhiddenまたはreadonlyに設定されているフィールドはバリデーションスキップ
-          const fieldConfig = tableConfig?.tables[tableName]?.formFields?.find(f => f.name === fieldName);
-          if (fieldConfig?.ui?.hidden || (fieldConfig?.ui?.readonly && !editData)) {
+          // formFieldsに含まれていないフィールドはスキップ（hiddenフィールド）
+          const fieldInFormFields = tableConfig?.tables[tableName]?.formFields?.find((f: FormField) => f.name === fieldName);
+          if (!fieldInFormFields) {
+            console.log(`Validation skipped for ${fieldName}: not in formFields (hidden field)`);
             continue;
+          }
+          
+          // table-configでhidden、readonly、またはautoCalculateに設定されているフィールドはバリデーションスキップ
+          const fieldConfig = fieldInFormFields;
+          if (fieldConfig) {
+            // hiddenフィールドはスキップ
+            if (fieldConfig.hidden || fieldConfig.type === 'hidden') {
+              console.log(`Validation skipped for ${fieldName}: hidden field`);
+              continue;
+            }
+            // readonlyフィールド（計算フィールドなど）はスキップ
+            if (fieldConfig.readonly) {
+              console.log(`Validation skipped for ${fieldName}: readonly field`);
+              continue;
+            }
+            // autoCalculateが設定されているフィールドのターゲットフィールドはスキップ
+            const isCalculatedField = tableConfig?.tables[tableName]?.formFields?.some(
+              (f: FormField) => f.autoCalculate?.enabled && f.autoCalculate?.targetField === fieldName
+            );
+            if (isCalculatedField) {
+              console.log(`Validation skipped for ${fieldName}: calculated field`);
+              continue;
+            }
           }
           
           const value = formData[fieldName];
@@ -349,6 +510,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
     switch (type) {
+      case 'hidden':
+        return (
+          <input
+            type="hidden"
+            id={name}
+            name={name}
+            value={value || ''}
+          />
+        );
+
       case 'text':
         return (
           <input
@@ -562,6 +733,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         <div className="form-fields">
           {formFields.map((field) => {
             console.log('Processing field:', field.name, 'value in formData:', formData[field.name]);
+            
+            // hiddenフィールドは通常のフォームフィールドとして表示しない
+            if (field.type === 'hidden' || field.hidden === true) {
+              const renderField = renderFormField(field);
+              return renderField ? (
+                <div key={field.name} style={{ display: 'none' }}>
+                  {renderField}
+                </div>
+              ) : null;
+            }
+            
             const renderField = renderFormField(field);
             if (!renderField) return null;
 
@@ -576,7 +758,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                   )}
                 </label>
                 {renderField}
-                {field.validation && (
+                {field.autoCalculate?.enabled && (
+                  <small className="field-info" style={{ color: '#2196F3', fontStyle: 'italic' }}>
+                    🧮 自動計算: {field.autoCalculate.formula}
+                  </small>
+                )}
+                {!field.autoCalculate && field.validation && (
                   <small className="field-info">
                     {field.type}
                     {field.maxLength && ` (最大${field.maxLength}文字)`}
