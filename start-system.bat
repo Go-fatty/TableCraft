@@ -43,36 +43,36 @@ echo      ✓ bin フォルダ作成完了
 
 echo.
 echo [4/6] 実行ファイルと設定ファイルをコピー中...
-copy /Y backend\target\tablecraft-backend-0.0.1-SNAPSHOT.jar bin\ >nul
+copy /Y backend\target\tablecraft-backend-0.0.1-SNAPSHOT.jar bin\ >nul 2>&1
 if exist "backend\config\table-config.json" (
-    copy /Y backend\config\table-config.json bin\config\ >nul
+    copy /Y backend\config\table-config.json bin\config\ >nul 2>&1
     echo      ✓ 外部設定ファイルをコピー
 ) else (
-    copy /Y backend\src\main\resources\config\table-config.json bin\config\ >nul
+    copy /Y backend\src\main\resources\config\table-config.json bin\config\ >nul 2>&1
     echo      ✓ デフォルト設定ファイルをコピー
 )
 copy /Y backend\src\main\resources\application*.properties bin\config\ >nul 2>&1
 
 REM SQLファイルをコピー
 if exist "backend\src\main\resources\table-definitions.sql" (
-    copy /Y backend\src\main\resources\table-definitions.sql bin\sql\ >nul
-    echo      ✓ SQLファイル (table-definitions.sql) をコピー
+    copy /Y backend\src\main\resources\table-definitions.sql bin\sql\ >nul 2>&1
+    echo      ✓ SQLファイル table-definitions.sql をコピー
 )
 if exist "settings_creates\output\sql\table_definitions.sql" (
-    copy /Y settings_creates\output\sql\table_definitions.sql bin\sql\ >nul
-    echo      ✓ SQLファイル (table_definitions.sql) をコピー
+    copy /Y settings_creates\output\sql\table_definitions.sql bin\sql\ >nul 2>&1
+    echo      ✓ SQLファイル table_definitions.sql をコピー
 )
 if exist "settings_creates\output\sql\create_tables.sql" (
-    copy /Y settings_creates\output\sql\create_tables.sql bin\sql\ >nul
-    echo      ✓ SQLファイル (create_tables.sql) をコピー
+    copy /Y settings_creates\output\sql\create_tables.sql bin\sql\ >nul 2>&1
+    echo      ✓ SQLファイル create_tables.sql をコピー
 )
 if exist "settings_creates\output\sql\create_indexes.sql" (
-    copy /Y settings_creates\output\sql\create_indexes.sql bin\sql\ >nul
-    echo      ✓ SQLファイル (create_indexes.sql) をコピー
+    copy /Y settings_creates\output\sql\create_indexes.sql bin\sql\ >nul 2>&1
+    echo      ✓ SQLファイル create_indexes.sql をコピー
 )
 if exist "settings_creates\output\sql\create_foreign_keys.sql" (
-    copy /Y settings_creates\output\sql\create_foreign_keys.sql bin\sql\ >nul
-    echo      ✓ SQLファイル (create_foreign_keys.sql) をコピー
+    copy /Y settings_creates\output\sql\create_foreign_keys.sql bin\sql\ >nul 2>&1
+    echo      ✓ SQLファイル create_foreign_keys.sql をコピー
 )
 echo      ✓ JAR と設定ファイルのコピー完了
 
