@@ -68,7 +68,7 @@ try {
     Start-Sleep -Seconds 5
     
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:8082/api/sql/tables" -Method POST -ContentType "application/json" -Body "{}" -TimeoutSec 10
+        $response = Invoke-WebRequest -Uri "http://localhost:8082/api/config/tables" -Method GET -TimeoutSec 10
         $data = $response.Content | ConvertFrom-Json
         Write-Host "✅ バックエンドAPI正常動作確認: テーブル数 $($data.count)" -ForegroundColor Green
     }

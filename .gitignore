@@ -1,0 +1,11 @@
+# Python cache
+/settings_creates/src/__pycache__
+
+# Build artifacts
+/backend/target/
+
+# Generated output (development only)
+/settings_creates/output/
+
+# Empty files
+/機能拡張ToDo.md

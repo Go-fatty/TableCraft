@@ -1,6 +1,6 @@
 -- Generated CREATE TABLE statements for mysql
 -- Project: AutoStack Builder Sample
--- Generated at: 2025-11-21 14:06:24
+-- Generated at: 2025-11-25 13:57:45
 
 -- ユーザー
 -- Users
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- Order Details
 -- 注文明細情報（複合主キーのサンプル）
 CREATE TABLE IF NOT EXISTS order_details (
-    order_id BIGINT NOT NULL PRIMARY KEY,
+    order_id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     product_id BIGINT NOT NULL PRIMARY KEY,
     quantity INT NOT NULL DEFAULT 1,
     unit_price DECIMAL(10,2) NOT NULL,

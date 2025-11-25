@@ -1,5 +1,5 @@
 // Generated TypeScript type definitions
-// Generated at: 2025-11-18 13:10:16
+// Generated at: 2025-11-25 10:26:38
 
 // Common types
 export type ValidationRule = {

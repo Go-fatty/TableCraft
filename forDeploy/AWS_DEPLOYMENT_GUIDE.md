@@ -158,7 +158,7 @@ TableCraftをAWS Elastic Beanstalkにデプロイする手順です。
 
 2. **API動作確認**
    ```bash
-   curl -X POST https://[EB-URL]/api/sql/findAll \
+   curl -X GET https://[EB-URL]/api/config/data/users \
      -H "Content-Type: application/json" \
      -d '{"tableName":"users"}'
    ```

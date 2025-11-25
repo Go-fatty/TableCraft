@@ -1,5 +1,12 @@
-C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\dynamic\SqlBasedTableService.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\service\ConfigBasedTableService.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\dynamic\ConfigBasedController.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\dynamic\FieldDefinition.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\health\HealthController.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\ColumnDefinition.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\PrimaryKeyDefinition.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\TableMetadata.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\Application.java
-C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\dynamic\SqlBasedController.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\TableConfig.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\service\ExternalConfigService.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\ForeignKeyDefinition.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\model\TableDefinition.java

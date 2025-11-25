@@ -39,15 +39,16 @@ const MainContent: React.FC<MainContentProps> = ({
 
   const loadTableConfig = async () => {
     try {
-      const response = await fetch('http://localhost:8082/api/sql/config/table-config', {
+      const response = await fetch('http://localhost:8082/api/config/table-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: '{}'
       });
       if (response.ok) {
         const configData = await response.json();
+        console.log('MainContent - Table Config loaded:', configData);
         setTableConfig(configData);
-        setLanguage(configData.project.defaultLanguage || 'ja');
+        setLanguage(configData.project?.defaultLanguage || 'ja');
       }
     } catch (err) {
       console.error('Failed to load table config:', err);
@@ -55,9 +56,11 @@ const MainContent: React.FC<MainContentProps> = ({
   };
 
   const getTableDisplayName = (tableName: string): string => {
-    if (tableConfig && tableConfig.tables[tableName]) {
+    if (tableConfig && tableConfig.tables && tableConfig.tables[tableName]) {
       const tableInfo = tableConfig.tables[tableName];
-      return tableInfo.metadata.labels[language] || tableInfo.metadata.labels.ja || tableName;
+      const metadata = tableInfo.metadata || {};
+      const labels = metadata.labels || {};
+      return labels[language] || labels.ja || tableInfo.displayName || tableName;
     }
     
     // フォールバック：静的な表示名マッピング

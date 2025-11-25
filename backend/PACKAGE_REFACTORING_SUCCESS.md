@@ -74,7 +74,7 @@ com.autostack.builder.nocode.*     # ノーコード機能 (将来)
 ## 🔗 継続利用可能なAPI
 
 ### **SQLベース版** (推奨) 
-- **エンドポイント**: `/api/sql/*`
+- **エンドポイント**: `/api/config/*`
 - **設定ファイル**: `table-definitions.sql`
 - **特徴**: 詳細な型指定（VARCHAR(100), DECIMAL(12,2), CHECK制約など）
 

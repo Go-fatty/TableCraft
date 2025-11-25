@@ -17,10 +17,15 @@ function App() {
   };
 
   const handleViewChange = (view: 'list' | 'create' | 'edit') => {
+    console.log('=== handleViewChange called ===');
+    console.log('Changing view to:', view);
+    console.log('Current editData:', editData);
     setCurrentView(view);
     if (view === 'create') {
+      console.log('CREATE mode - clearing editData');
       setEditData(undefined);
     }
+    console.log('==============================');
   };
 
   const handleEdit = (data: Record<string, any>) => {
@@ -44,38 +49,40 @@ function App() {
 
     try {
       let url: string;
+      let method: string;
       let payload: any;
 
       // 編集モードかつeditDataにidがある場合は編集処理
       const isEditMode = currentView === 'edit' && editData && (editData.id || editData.ID);
-      console.log('isEditMode:', isEditMode, 'editData.id:', editData?.id, 'editData.ID:', editData?.ID);
+      const recordId = editData?.id || editData?.ID;
+      console.log('isEditMode:', isEditMode, 'recordId:', recordId);
 
       if (isEditMode) {
         // 編集の場合
-        url = 'http://localhost:8082/api/sql/update';
-        payload = { 
-          tableName: selectedTable, 
-          id: editData.id || editData.ID, 
-          data 
-        };
+        url = `http://localhost:8082/api/config/data/${selectedTable}/${recordId}`;
+        method = 'PUT';
+        // PUTリクエストはデータオブジェクトのみを送信
+        payload = data;
+        console.log('Edit mode - URL:', url, 'Method:', method);
         console.log('Edit mode - payload:', payload);
       } else {
         // 新規作成の場合
-        url = 'http://localhost:8082/api/sql/create';
+        url = `http://localhost:8082/api/config/data/${selectedTable}`;
+        method = 'POST';
         // data からid/IDを除外（自動生成されるため）
         const { id, ID, ...dataWithoutId } = data;
-        payload = { 
-          tableName: selectedTable, 
-          data: dataWithoutId 
-        };
+        // POSTリクエストはデータオブジェクトのみを送信
+        payload = dataWithoutId;
+        console.log('Create mode - URL:', url, 'Method:', method);
         console.log('Create mode - payload:', payload);
       }
 
       console.log('Final URL:', url);
+      console.log('Final Method:', method);
       console.log('Final payload:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(url, {
-        method: 'POST',
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },

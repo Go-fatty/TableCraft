@@ -145,15 +145,24 @@ class FrontendGenerator:
         validation = col_def.get('validation', {})
         constraints = col_def.get('constraints', {})
         
+        # hidden フィールドの場合は type を hidden に設定
+        input_type = ui.get('inputType', 'text')
+        if ui.get('hidden', False):
+            input_type = 'hidden'
+        
         field = {
             "name": col_name,
-            "type": ui.get('inputType', 'text'),
+            "type": input_type,
             "label": col_def.get('labels', {}),
             "placeholder": ui.get('placeholder', {}),
             "required": validation.get('required', not constraints.get('nullable', True)),
             "readonly": ui.get('readonly', False) or constraints.get('autoIncrement', False),
             "disabled": ui.get('disabled', False)
         }
+        
+        # hidden プロパティを追加（UI表示制御用）
+        if ui.get('hidden', False):
+            field["hidden"] = True
         
         # 入力タイプ別の追加設定
         input_type = field["type"]
@@ -193,6 +202,26 @@ class FrontendGenerator:
         # バリデーション設定
         if validation:
             field["validation"] = validation.copy()
+        
+        # Autofill 設定（メタデータに autofill プロパティがある場合）
+        autofill = col_def.get('autofill')
+        if autofill:
+            field["autofill"] = {
+                "enabled": autofill.get('enabled', True),
+                "sourceTable": autofill.get('sourceTable'),
+                "sourceColumn": autofill.get('sourceColumn'),
+                "mappings": autofill.get('mappings', [])
+            }
+        
+        # AutoCalculate 設定（メタデータに autoCalculate プロパティがある場合）
+        auto_calculate = col_def.get('autoCalculate')
+        if auto_calculate:
+            field["autoCalculate"] = {
+                "enabled": auto_calculate.get('enabled', True),
+                "formula": auto_calculate.get('formula'),
+                "targetField": auto_calculate.get('targetField'),
+                "triggerFields": auto_calculate.get('triggerFields', [])
+            }
         
         return field
     
@@ -590,9 +619,8 @@ class FrontendGenerator:
             "",
             "  // Fetch all records",
             "  const fetchRecords = async () => {",
-            f"    const data = await callApi<{interface_name}[]>('/api/sql/findAll', {{",
-            "      method: 'POST',",
-            f"      body: JSON.stringify({{ tableName: '{table_name}' }}),",
+            f"    const data = await callApi<{interface_name}[]>(`/api/config/data/{table_name}`, {{",
+            "      method: 'GET',",
             "    }});",
             "    ",
             "    if (data) {",
@@ -602,9 +630,9 @@ class FrontendGenerator:
             "",
             "  // Create new record",
             f"  const createRecord = async (data: {interface_name}Form) => {{",
-            f"    const result = await callApi<{interface_name}>('/api/sql/create', {{",
+            f"    const result = await callApi<{interface_name}>(`/api/config/data/{table_name}`, {{",
             "      method: 'POST',",
-            f"      body: JSON.stringify({{ tableName: '{table_name}', data }}),",
+            "      body: JSON.stringify(data),",
             "    }});",
             "    ",
             "    if (result) {",
@@ -616,9 +644,9 @@ class FrontendGenerator:
             "",
             "  // Update existing record",
             f"  const updateRecord = async (id: number, data: {interface_name}Form) => {{",
-            f"    const result = await callApi<{interface_name}>('/api/sql/update', {{",
-            "      method: 'POST',",
-            f"      body: JSON.stringify({{ tableName: '{table_name}', id, data }}),",
+            f"    const result = await callApi<{interface_name}>(`/api/config/data/{table_name}/${{id}}`, {{",
+            "      method: 'PUT',",
+            "      body: JSON.stringify(data),",
             "    }});",
             "    ",
             "    if (result) {",
@@ -632,9 +660,8 @@ class FrontendGenerator:
             "",
             "  // Delete record",
             "  const deleteRecord = async (id: number) => {",
-            "    const success = await callApi<boolean>('/api/sql/delete', {",
-            "      method: 'POST',",
-            f"      body: JSON.stringify({{ tableName: '{table_name}', id }}),",
+            "    const success = await callApi<boolean>(`/api/config/data/{table_name}/${id}`, {",
+            "      method: 'DELETE',",
             "    });",
             "    ",
             "    if (success) {",
