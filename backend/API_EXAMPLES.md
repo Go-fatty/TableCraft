@@ -1,214 +1,357 @@
-# Dynamic Spring Boot REST API Examples
+# TableCraft API使用例
 
-このファイルは、プロパティファイルで定義されたテーブルに対するCRUD操作のAPI例を示します。
+## 概要
 
-## サーバー起動
-```bash
-# プロジェクトディレクトリで実行
-mvn spring-boot:run
+TableCraft APIは、JSONベースの外部設定システムを使用してテーブル操作を行います。従来のハードコード化されたテーブル定義から、完全に設定可能な外部JSONファイルベースのアーキテクチャに移行しました。
+
+## アーキテクチャ概要
+
+```
+table-metadata.json → Python生成 → JSON設定ファイル → Spring Boot API
+                                      ↓
+                            table-config.json
+                            ui-config.json
+                            validation-config.json
 ```
 
-**アクセス先:** http://localhost:8081
+## 基本API エンドポイント
 
-## API一覧
+### 設定API (/api/config/*)
 
-すべてのAPIはPOSTメソッドを使用します。
-
-### 1. テーブル一覧取得
-利用可能なテーブル一覧を取得します。
-
-**URL:** `POST /api/tables`
+#### テーブル設定の取得
 ```bash
-curl -X POST http://localhost:8081/api/tables \
-  -H "Content-Type: application/json"
+# 利用可能なテーブル一覧を取得
+GET /api/config/tables
 ```
 
-### 2. テーブルスキーマ取得
-指定したテーブルのスキーマ情報を取得します。
-
-**URL:** `POST /api/schema`
-```bash
-curl -X POST http://localhost:8081/api/schema \
-  -H "Content-Type: application/json" \
-  -d '{"tableName": "users"}'
-```
-
-### 3. データ作成 (CREATE)
-新しいレコードを作成します。
-
-**URL:** `POST /api/create`
-```bash
-# usersテーブルの例
-curl -X POST http://localhost:8081/api/create \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tableName": "users",
-    "data": {
-      "name": "田中太郎",
-      "email": "tanaka@example.com",
-      "age": 30
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "users",
+      "label": "ユーザー管理",
+      "description": "システムユーザーの管理"
+    },
+    {
+      "id": "products",
+      "label": "商品管理",
+      "description": "商品情報の管理"
     }
-  }'
+  ]
+}
+```
 
-# productテーブルの例
-curl -X POST http://localhost:8081/api/create \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tableName": "product",
-    "data": {
-      "name": "ノートパソコン",
-      "description": "高性能なビジネス向けノートパソコン",
-      "price": 150000.00,
-      "stock": 10
+#### UI設定の取得
+```bash
+GET /api/config/ui
+```
+
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "data": {
+    "pagination": {
+      "defaultPageSize": 10,
+      "pageSizeOptions": [10, 20, 50, 100]
+    },
+    "dateFormat": "yyyy-MM-dd",
+    "theme": "default"
+  }
+}
+```
+
+#### バリデーション設定の取得
+```bash
+GET /api/config/validation
+```
+
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "data": {
+    "required": ["name", "email"],
+    "minLength": {
+      "name": 2,
+      "password": 8
+    },
+    "patterns": {
+      "email": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
     }
-  }'
+  }
+}
 ```
 
-### 4. データ検索 (READ)
-IDでレコードを検索します。
+## データ操作API (/api/config/data/*)
 
-**URL:** `POST /api/find`
+### 基本CRUD操作
+
+#### データの取得
 ```bash
-curl -X POST http://localhost:8081/api/find \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tableName": "users",
-    "id": 1
-  }'
+# 全データ取得（ページング対応）
+GET /api/config/data/users?page=0&size=20
+
+# フィルタリング
+GET /api/config/data/users?name=田中&status=active
+
+# ソート
+GET /api/config/data/users?sort=createdAt,desc
 ```
 
-### 5. 全データ取得 (READ ALL)
-テーブルの全レコードを取得します。
-
-**URL:** `POST /api/findAll`
-```bash
-curl -X POST http://localhost:8081/api/findAll \
-  -H "Content-Type: application/json" \
-  -d '{"tableName": "users"}'
-```
-
-### 6. データ更新 (UPDATE)
-既存のレコードを更新します。
-
-**URL:** `POST /api/update`
-```bash
-curl -X POST http://localhost:8081/api/update \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tableName": "users",
-    "id": 1,
-    "data": {
-      "name": "田中太郎（更新済）",
-      "email": "tanaka.updated@example.com",
-      "age": 31
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "name": "田中太郎",
+        "email": "tanaka@example.com",
+        "status": "active",
+        "createdAt": "2024-01-15T10:30:00"
+      }
+    ],
+    "pageable": {
+      "page": 0,
+      "size": 20,
+      "totalElements": 1,
+      "totalPages": 1
     }
-  }'
+  }
+}
 ```
 
-### 7. データ削除 (DELETE)
-レコードを削除します。
-
-**URL:** `POST /api/delete`
+#### データの作成
 ```bash
-curl -X POST http://localhost:8081/api/delete \
-  -H "Content-Type: application/json" \
-  -d '{
+POST /api/config/data/users
+Content-Type: application/json
+
+{
+  "name": "佐藤花子",
+  "email": "sato@example.com",
+  "status": "active"
+}
+```
+
+#### データの更新
+```bash
+PUT /api/config/data/users/1
+Content-Type: application/json
+
+{
+  "name": "田中太郎（更新）",
+  "email": "tanaka.updated@example.com",
+  "status": "active"
+}
+```
+
+#### データの削除
+```bash
+DELETE /api/config/data/users/1
+```
+
+## 高度な機能
+
+### 設定のホットリロード
+```bash
+POST /api/config/reload
+```
+
+この機能により、サーバーを再起動することなく、JSON設定ファイルの変更をリアルタイムで反映できます。
+
+**使用例:**
+1. `table-metadata.json`を編集
+2. Python生成パイプラインを実行
+3. `/api/config/reload`を呼び出し
+4. 新しい設定が即座に反映される
+
+### スキーマ情報の取得
+```bash
+GET /api/config/schema/users
+```
+
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "data": {
     "tableName": "users",
-    "id": 1
-  }'
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT",
+        "nullable": false,
+        "primaryKey": true,
+        "autoIncrement": true
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR",
+        "length": 255,
+        "nullable": false
+      },
+      {
+        "name": "email",
+        "type": "VARCHAR",
+        "length": 255,
+        "nullable": false,
+        "unique": true
+      }
+    ]
+  }
+}
 ```
 
-## PowerShellでのテスト例
+## エラーハンドリング
 
-Windows PowerShellでInvoke-RestMethodを使用する場合：
-
-```powershell
-# テーブル一覧取得
-Invoke-RestMethod -Uri 'http://localhost:8081/api/tables' -Method POST -ContentType 'application/json'
-
-# ユーザー作成
-$userData = @{
-    tableName = "users"
-    data = @{
-        name = "佐藤花子"
-        email = "sato@example.com"
-        age = 25
+### バリデーションエラー
+```json
+{
+  "success": false,
+  "message": "バリデーションエラーが発生しました",
+  "errors": [
+    {
+      "field": "email",
+      "message": "有効なメールアドレスを入力してください"
     }
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri 'http://localhost:8081/api/create' -Method POST -ContentType 'application/json' -Body $userData
-
-# 全ユーザー取得
-$getAllUsers = @{ tableName = "users" } | ConvertTo-Json
-Invoke-RestMethod -Uri 'http://localhost:8081/api/findAll' -Method POST -ContentType 'application/json' -Body $getAllUsers
+  ]
+}
 ```
 
-## テーブル定義
-
-現在プロパティファイルで定義されているテーブル：
-
-1. **users** - ユーザー情報テーブル
-   - id: BIGINT (AUTO_INCREMENT, PRIMARY KEY)
-   - name: VARCHAR(255) NOT NULL
-   - email: VARCHAR(255) NOT NULL
-   - age: INT
-   - created_date: DATETIME
-
-2. **product** - 商品情報テーブル
-   - id: BIGINT (AUTO_INCREMENT, PRIMARY KEY) 
-   - name: VARCHAR(255) NOT NULL
-   - description: VARCHAR(255)
-   - price: DECIMAL(10,2) NOT NULL
-   - stock: INT
-   - created_date: DATETIME
-
-3. **orders** - 注文情報テーブル
-   - id: BIGINT (AUTO_INCREMENT, PRIMARY KEY)
-   - user_id: BIGINT NOT NULL
-   - product_id: BIGINT NOT NULL
-   - quantity: INT NOT NULL
-   - total_price: DECIMAL(10,2) NOT NULL
-   - order_date: DATETIME
-
-4. **category** - カテゴリ情報テーブル
-   - id: BIGINT (AUTO_INCREMENT, PRIMARY KEY)
-   - name: VARCHAR(255) NOT NULL
-   - description: VARCHAR(255)
-
-## MySQLデータベース接続
-
-開発時のデータベース確認用：
-- **ホスト:** localhost
-- **ポート:** 3306  
-- **データベース:** tablecraft
-- **ユーザー名:** root (application-dev.properties で設定)
-- **パスワード:** (application-dev.properties で設定)
-
-## 新しいテーブルの追加方法
-
-1. `src/main/resources/table-definitions.properties`を編集
-2. 以下の形式で新しいテーブルを定義：
-
-```properties
-# テーブル名: new_table の例
-tables.new_table.fields.id=BIGINT:auto_increment,not_null,primary_key
-tables.new_table.fields.field_name=VARCHAR(255):not_null
-tables.new_table.fields.optional_field=INT:
+### システムエラー
+```json
+{
+  "success": false,
+  "message": "内部サーバーエラーが発生しました",
+  "timestamp": "2024-01-15T10:30:00"
+}
 ```
 
-3. アプリケーションを再起動すると自動的にテーブルが作成される
+## フロントエンド連携
 
-## フィールドタイプと属性
+### React Hooks の使用例
+```typescript
+import { useTable } from '../hooks/useTable';
 
-**データタイプ:**
-- BIGINT
-- VARCHAR(サイズ)
-- INT
-- DECIMAL(桁数,小数点桁数)
-- DATETIME
+function UsersList() {
+  const {
+    data,
+    loading,
+    error,
+    fetchData,
+    createRecord,
+    updateRecord,
+    deleteRecord
+  } = useTable('users');
 
-**属性（コロンの後に指定、カンマ区切り）:**
-- `not_null` - NOT NULL制約
-- `auto_increment` - AUTO_INCREMENT
-- `primary_key` - PRIMARY KEY
-- 属性なしの場合はコロンのみまたは空白
+  // 自動的に /api/config/data/users にアクセス
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      {loading && <div>読み込み中...</div>}
+      {error && <div>エラー: {error.message}</div>}
+      {data && (
+        <ul>
+          {data.content.map(user => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+```
+
+## 開発ワークフロー
+
+### 1. テーブル定義の追加/変更
+```bash
+# 1. table-metadata.json を編集
+vim settings_creates/examples/table-metadata.json
+
+# 2. 設定ファイルを生成
+cd settings_creates
+python src/generator.py
+
+# 3. 設定をリロード
+curl -X POST http://localhost:8080/api/config/reload
+```
+
+### 2. 新しいテーブルの確認
+```bash
+# テーブル一覧で新しいテーブルを確認
+curl http://localhost:8080/api/config/tables
+
+# スキーマ情報を確認
+curl http://localhost:8080/api/config/schema/new_table
+```
+
+## 設定ファイルの構造
+
+### table-config.json
+```json
+{
+  "tables": {
+    "users": {
+      "label": "ユーザー管理",
+      "description": "システムユーザーの管理",
+      "columns": {
+        "id": { "type": "id", "label": "ID" },
+        "name": { "type": "text", "label": "名前", "required": true }
+      }
+    }
+  }
+}
+```
+
+### ui-config.json
+```json
+{
+  "pagination": {
+    "defaultPageSize": 10,
+    "pageSizeOptions": [10, 20, 50, 100]
+  },
+  "dateFormat": "yyyy-MM-dd"
+}
+```
+
+### validation-config.json
+```json
+{
+  "users": {
+    "name": {
+      "required": true,
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "email": {
+      "required": true,
+      "pattern": "email"
+    }
+  }
+}
+```
+
+## パフォーマンスとセキュリティ
+
+### ページング
+- デフォルトページサイズ: 10件
+- 最大ページサイズ: 100件
+- 大量データに対する効率的な処理
+
+### セキュリティ
+- SQLインジェクション対策
+- CSRF保護
+- 入力値のバリデーション
+- ログイン認証（予定）
+
+## まとめ
+
+TableCraft APIは、JSONベースの外部設定システムにより、柔軟で保守しやすいテーブル管理システムを提供します。ホットリロード機能により、開発効率が大幅に向上し、設定変更が即座に反映されます。

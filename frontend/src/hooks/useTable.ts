@@ -1,8 +1,7 @@
 // Generated React Hooks for table operations
-// Generated at: 2025-11-18 13:10:16
+// Generated at: 2025-11-25 13:57:45
 
-import { useState } from 'react';
-import type { Users, UsersForm, Categories, CategoriesForm, Products, ProductsForm, OrderDetails, OrderDetailsForm } from '../types/generated';
+import { useState, useEffect } from 'react';
 
 // Common API response type
 interface ApiResponse<T> {
@@ -13,11 +12,11 @@ interface ApiResponse<T> {
 }
 
 // Common hook for API calls
-export const useApi = () => {
+export const useApi = <T>() => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const callApi = async <T>(url: string, options: RequestInit = {}): Promise<T | null> => {
+  const callApi = async (url: string, options: RequestInit = {}): Promise<T | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -60,10 +59,9 @@ export const useUsers = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Users[]>('/api/sql/findAll', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'users' }),
-    });
+    const data = await callApi<Users[]>(`/api/config/data/users`, {
+      method: 'GET',
+    }});
     
     if (data) {
       setRecords(data);
@@ -72,10 +70,10 @@ export const useUsers = () => {
 
   // Create new record
   const createRecord = async (data: UsersForm) => {
-    const result = await callApi<Users>('/api/sql/create', {
+    const result = await callApi<Users>(`/api/config/data/users`, {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'users', data }),
-    });
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -86,10 +84,10 @@ export const useUsers = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: UsersForm) => {
-    const result = await callApi<Users>('/api/sql/update', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'users', id, data }),
-    });
+    const result = await callApi<Users>(`/api/config/data/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -102,9 +100,8 @@ export const useUsers = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'users', id }),
+    const success = await callApi<boolean>(`/api/config/data/{table_name}/${id}`, {
+      method: 'DELETE',
     });
     
     if (success) {
@@ -132,10 +129,9 @@ export const useCategories = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Categories[]>('/api/sql/findAll', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'categories' }),
-    });
+    const data = await callApi<Categories[]>(`/api/config/data/categories`, {
+      method: 'GET',
+    }});
     
     if (data) {
       setRecords(data);
@@ -144,10 +140,10 @@ export const useCategories = () => {
 
   // Create new record
   const createRecord = async (data: CategoriesForm) => {
-    const result = await callApi<Categories>('/api/sql/create', {
+    const result = await callApi<Categories>(`/api/config/data/categories`, {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'categories', data }),
-    });
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -158,10 +154,10 @@ export const useCategories = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: CategoriesForm) => {
-    const result = await callApi<Categories>('/api/sql/update', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'categories', id, data }),
-    });
+    const result = await callApi<Categories>(`/api/config/data/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -174,9 +170,8 @@ export const useCategories = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'categories', id }),
+    const success = await callApi<boolean>(`/api/config/data/{table_name}/${id}`, {
+      method: 'DELETE',
     });
     
     if (success) {
@@ -204,10 +199,9 @@ export const useProducts = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Products[]>('/api/sql/findAll', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'products' }),
-    });
+    const data = await callApi<Products[]>(`/api/config/data/products`, {
+      method: 'GET',
+    }});
     
     if (data) {
       setRecords(data);
@@ -216,10 +210,10 @@ export const useProducts = () => {
 
   // Create new record
   const createRecord = async (data: ProductsForm) => {
-    const result = await callApi<Products>('/api/sql/create', {
+    const result = await callApi<Products>(`/api/config/data/products`, {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'products', data }),
-    });
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -230,10 +224,10 @@ export const useProducts = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: ProductsForm) => {
-    const result = await callApi<Products>('/api/sql/update', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'products', id, data }),
-    });
+    const result = await callApi<Products>(`/api/config/data/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => prev.map(record => 
@@ -246,9 +240,8 @@ export const useProducts = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'products', id }),
+    const success = await callApi<boolean>(`/api/config/data/{table_name}/${id}`, {
+      method: 'DELETE',
     });
     
     if (success) {
@@ -276,10 +269,9 @@ export const useOrderDetails = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<OrderDetails[]>('/api/sql/findAll', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details' }),
-    });
+    const data = await callApi<OrderDetails[]>(`/api/config/data/order_details`, {
+      method: 'GET',
+    }});
     
     if (data) {
       setRecords(data);
@@ -288,10 +280,10 @@ export const useOrderDetails = () => {
 
   // Create new record
   const createRecord = async (data: OrderDetailsForm) => {
-    const result = await callApi<OrderDetails>('/api/sql/create', {
+    const result = await callApi<OrderDetails>(`/api/config/data/order_details`, {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details', data }),
-    });
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => [...prev, result]);
@@ -300,33 +292,30 @@ export const useOrderDetails = () => {
     return result;
   };
 
-  // Update existing record with composite key
-  const updateRecord = async (keyValues: { order_id: number; product_id: number }, data: OrderDetailsForm) => {
-    const result = await callApi<OrderDetails>('/api/sql/update', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details', keyValues, data }),
-    });
+  // Update existing record
+  const updateRecord = async (id: number, data: OrderDetailsForm) => {
+    const result = await callApi<OrderDetails>(`/api/config/data/order_details/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }});
     
     if (result) {
       setRecords(prev => prev.map(record => 
-        (record.order_id === keyValues.order_id && record.product_id === keyValues.product_id) ? result : record
+        record.id === id ? result : record
       ));
     }
     
     return result;
   };
 
-  // Delete record with composite key
-  const deleteRecord = async (keyValues: { order_id: number; product_id: number }) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
-      method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details', keyValues }),
+  // Delete record
+  const deleteRecord = async (id: number) => {
+    const success = await callApi<boolean>(`/api/config/data/{table_name}/${id}`, {
+      method: 'DELETE',
     });
     
     if (success) {
-      setRecords(prev => prev.filter(record => 
-        !(record.order_id === keyValues.order_id && record.product_id === keyValues.product_id)
-      ));
+      setRecords(prev => prev.filter(record => record.id !== id));
     }
     
     return success;

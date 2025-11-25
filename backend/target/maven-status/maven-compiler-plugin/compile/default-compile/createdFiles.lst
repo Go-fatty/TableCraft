@@ -1,5 +1,14 @@
-com\tablecraft\app\dynamic\SqlBasedTableService.class
+com\tablecraft\app\service\ConfigBasedTableService.class
+com\tablecraft\app\model\PrimaryKeyDefinition.class
+com\tablecraft\app\model\TableConfig$ProjectInfo.class
+com\tablecraft\app\model\TableConfig$DatabaseInfo.class
+com\tablecraft\app\model\ColumnDefinition.class
+com\tablecraft\app\service\ExternalConfigService.class
 com\tablecraft\app\health\HealthController.class
+com\tablecraft\app\model\TableDefinition.class
+com\tablecraft\app\dynamic\ConfigBasedController.class
 com\tablecraft\app\dynamic\FieldDefinition.class
-com\tablecraft\app\dynamic\SqlBasedController.class
+com\tablecraft\app\model\TableConfig.class
+com\tablecraft\app\model\TableMetadata.class
 com\tablecraft\app\Application.class
+com\tablecraft\app\model\ForeignKeyDefinition.class

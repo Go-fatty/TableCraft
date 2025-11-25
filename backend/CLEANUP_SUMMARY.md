@@ -68,21 +68,21 @@ src/main/resources/
 ### **SQLベース API** (唯一のエンドポイント)
 ```bash
 # テーブル一覧取得
-POST /api/sql/tables
+GET /api/config/tables
 
 # レコード作成
-POST /api/sql/create
+POST /api/config/data/{table}
 
 # レコード検索
-POST /api/sql/find
-POST /api/sql/findAll
+GET /api/config/data/{table}
+GET /api/config/data/{table}
 
 # レコード更新・削除
-POST /api/sql/update
-POST /api/sql/delete
+PUT /api/config/data/{table}/{id}
+DELETE /api/config/data/{table}/{id}
 
 # スキーマ情報取得
-POST /api/sql/schema
+GET /api/config/schema/{table}
 ```
 
 ### **対応テーブル** (6個)

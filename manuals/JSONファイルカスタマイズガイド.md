@@ -342,6 +342,259 @@ CREATE TABLE IF NOT EXISTS employees (
 
 ---
 
+## 高度な機能
+
+### Autofill機能（自動入力）
+
+外部キー参照先のテーブルからデータを自動取得して、他のフィールドに自動設定する機能です。
+
+#### 基本設定
+
+```json
+{
+  "name": "product_id",
+  "type": "select",
+  "label": {"ja": "商品", "en": "Product"},
+  "options": {
+    "type": "foreign_key",
+    "table": "products",
+    "valueColumn": "id",
+    "displayColumn": "name",
+    "allowNull": true,
+    "nullLabel": {"ja": "商品を選択してください", "en": "Select a product"}
+  },
+  "autofill": {
+    "enabled": true,
+    "sourceTable": "products",
+    "sourceColumn": "id",
+    "mappings": [
+      {
+        "from": "price",
+        "to": "_product_base_price",
+        "overwritable": true
+      }
+    ]
+  }
+}
+```
+
+#### Autofill設定プロパティ
+
+| プロパティ | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| `enabled` | boolean | ✅ | autofill機能の有効/無効 |
+| `sourceTable` | string | ✅ | データ取得元のテーブル名 |
+| `sourceColumn` | string | ✅ | 検索に使用するカラム名 |
+| `mappings` | array | ✅ | フィールドマッピングの配列 |
+
+#### Mappings配列の要素
+
+| プロパティ | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| `from` | string | ✅ | 取得元テーブルのカラム名 |
+| `to` | string | ✅ | 設定先フォームフィールド名 |
+| `overwritable` | boolean | ❌ | 既存値の上書き許可（デフォルト: true） |
+
+#### 複数フィールドの自動設定例
+
+```json
+{
+  "name": "customer_id",
+  "type": "select",
+  "autofill": {
+    "enabled": true,
+    "sourceTable": "customers",
+    "sourceColumn": "id",
+    "mappings": [
+      {
+        "from": "address",
+        "to": "shipping_address",
+        "overwritable": true
+      },
+      {
+        "from": "phone",
+        "to": "contact_phone",
+        "overwritable": true
+      },
+      {
+        "from": "email",
+        "to": "contact_email",
+        "overwritable": false
+      }
+    ]
+  }
+}
+```
+
+### AutoCalculate機能（自動計算）
+
+フォーム内で他のフィールドの値を使って自動計算を行い、結果を別のフィールドに設定する機能です。
+
+#### 基本設定
+
+```json
+{
+  "name": "quantity",
+  "type": "number",
+  "label": {"ja": "数量", "en": "Quantity"},
+  "autoCalculate": {
+    "enabled": true,
+    "formula": "_product_base_price * quantity",
+    "targetField": "unit_price",
+    "triggerFields": ["quantity", "_product_base_price"]
+  }
+}
+```
+
+#### AutoCalculate設定プロパティ
+
+| プロパティ | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| `enabled` | boolean | ✅ | 自動計算機能の有効/無効 |
+| `formula` | string | ✅ | 計算式（JavaScriptの数式） |
+| `targetField` | string | ✅ | 計算結果を設定するフィールド名 |
+| `triggerFields` | array | ✅ | 計算を再実行するトリガーフィールド |
+
+#### 計算式の記述例
+
+```javascript
+// 単純な乗算
+"formula": "quantity * price"
+
+// 括弧を使った計算
+"formula": "(price * quantity) * (1 + tax_rate / 100)"
+
+// 割引計算
+"formula": "price * (1 - discount_rate / 100)"
+
+// 複数フィールドの合計
+"formula": "field1 + field2 + field3"
+```
+
+#### 税込価格の自動計算例
+
+```json
+{
+  "name": "price",
+  "type": "number",
+  "label": {"ja": "本体価格", "en": "Base Price"}
+},
+{
+  "name": "tax_rate",
+  "type": "number",
+  "label": {"ja": "税率(%)", "en": "Tax Rate (%)"},
+  "defaultValue": "10.00"
+},
+{
+  "name": "tax_included_price",
+  "type": "number",
+  "label": {"ja": "税込価格", "en": "Tax Included Price"},
+  "readonly": true,
+  "autoCalculate": {
+    "enabled": true,
+    "formula": "price * (1 + tax_rate / 100)",
+    "targetField": "tax_included_price",
+    "triggerFields": ["price", "tax_rate"]
+  }
+}
+```
+
+### Autofill + AutoCalculate の組み合わせ
+
+この2つの機能を組み合わせることで、強力なフォーム自動化が実現できます。
+
+#### 注文明細フォームの完全な例
+
+```json
+{
+  "order_details": {
+    "formFields": [
+      {
+        "name": "order_id",
+        "type": "hidden",
+        "hidden": true,
+        "readonly": true
+      },
+      {
+        "name": "product_id",
+        "type": "select",
+        "label": {"ja": "商品", "en": "Product"},
+        "required": true,
+        "options": {
+          "type": "foreign_key",
+          "table": "products",
+          "valueColumn": "id",
+          "displayColumn": "name",
+          "allowNull": true,
+          "nullLabel": {"ja": "商品を選択してください", "en": "Select a product"}
+        },
+        "autofill": {
+          "enabled": true,
+          "sourceTable": "products",
+          "sourceColumn": "id",
+          "mappings": [
+            {
+              "from": "price",
+              "to": "_product_base_price",
+              "overwritable": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "quantity",
+        "type": "number",
+        "label": {"ja": "数量", "en": "Quantity"},
+        "required": true,
+        "min": 1,
+        "placeholder": {"ja": "数量を入力", "en": "Enter quantity"},
+        "autoCalculate": {
+          "enabled": true,
+          "formula": "_product_base_price * quantity",
+          "targetField": "unit_price",
+          "triggerFields": ["quantity", "_product_base_price"]
+        }
+      },
+      {
+        "name": "unit_price",
+        "type": "number",
+        "label": {"ja": "金額（数量×単価）", "en": "Total Amount"},
+        "readonly": true
+      }
+    ]
+  }
+}
+```
+
+**実行フロー:**
+1. ユーザーが商品を選択
+2. **Autofill実行**: 商品テーブルから単価を取得し`_product_base_price`に設定
+3. ユーザーが数量を入力
+4. **AutoCalculate実行**: `_product_base_price * quantity` を計算
+5. `unit_price`に計算結果が自動設定
+
+**ポイント:**
+- `_product_base_price`は内部フィールド（フォームには表示されない）
+- `unit_price`は`readonly: true`で自動計算専用
+- `order_id`は`hidden: true`で非表示（自動採番フィールド）
+
+#### 使用上の注意
+
+**Autofill:**
+- ✅ 外部キー参照先からのデータ自動取得
+- ✅ 複数フィールドへの同時設定
+- ✅ ユーザーによる手動上書き（`overwritable: true`の場合）
+- ❌ 複雑な計算式による自動設定は不可
+
+**AutoCalculate:**
+- ✅ 四則演算（+、-、*、/）
+- ✅ 括弧を使った計算順序の制御
+- ✅ 複数フィールドの値を使った計算
+- ❌ 変数名は英数字とアンダースコアのみ
+- ❌ 複雑な関数（Math.pow等）は未サポート
+
+---
+
 ## 一覧表示のカスタマイズ
 
 ### 通常の列表示

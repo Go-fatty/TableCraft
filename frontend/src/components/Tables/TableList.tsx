@@ -30,7 +30,8 @@ type TableConfig = {
   tables: {
     [tableName: string]: {
       name: string;
-      listColumns: ListColumn[];
+      columns?: any[];
+      listColumns?: ListColumn[];
       metadata: {
         labels: Record<string, string>;
         description: Record<string, string>;
@@ -77,17 +78,18 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
       setError(null);
 
       // table-config.json をバックエンドから読み込み
-      const response = await fetch('http://localhost:8082/api/sql/config/table-config', {
+      const response = await fetch('http://localhost:8082/api/config/table-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: '{}'
       });
       if (!response.ok) {
         throw new Error('テーブル設定の読み込みに失敗しました');
       }
       const configData = await response.json();
+      console.log('TableList - Table Config loaded:', configData);
       setTableConfig(configData);
-      setLanguage(configData.project.defaultLanguage || 'ja');
+      setLanguage(configData.project?.defaultLanguage || 'ja');
 
     } catch (err) {
       setError(err instanceof Error ? err.message : '設定ファイルの読み込みに失敗しました');
@@ -100,47 +102,50 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
     console.log('=== loadForeignKeyData called ===');
     if (!tableConfig || !tableName) return;
     
-    const currentTable = tableConfig.tables[tableName];
-    if (!currentTable) return;
+    const currentTable = tableConfig.tables?.[tableName];
+    if (!currentTable) {
+      console.log('Current table not found:', tableName);
+      return;
+    }
     
     console.log('Current table:', tableName);
     console.log('List columns:', currentTable.listColumns);
     
-    const foreignKeyColumns = currentTable.listColumns.filter(col => col.foreignKey);
+    const foreignKeyColumns = currentTable.listColumns?.filter(col => col.foreignKey) || [];
     console.log('Foreign key columns found:', foreignKeyColumns);
     
     const foreignData: Record<string, Record<string, any>> = {};
     
     for (const column of foreignKeyColumns) {
       if (column.foreignKey) {
-        console.log(`Loading foreign key data for column ${column.name} -> table ${column.foreignKey.table}`);
+        const fkTable = column.foreignKey.table;
+        console.log(`Loading foreign key data for column ${column.name} -> table ${fkTable}`);
         try {
-          const response = await fetch('http://localhost:8082/api/sql/findAll', {
-            method: 'POST',
+          const response = await fetch(`http://localhost:8082/api/config/data/${fkTable}`, {
+            method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tableName: column.foreignKey.table }),
           });
           
           if (response.ok) {
             const data = await response.json();
-            console.log(`Response for ${column.foreignKey.table}:`, data);
-            if (data.success && data.data) {
+            console.log(`Response for ${fkTable}:`, data);
+            if (data.success && data.data && data.data.content) {
               const lookupTable: Record<string, any> = {};
-              data.data.forEach((record: any) => {
+              data.data.content.forEach((record: any) => {
                 // IDの大文字小文字両方に対応
                 const keyValue = record.id || record.ID;
                 if (keyValue !== undefined) {
                   lookupTable[keyValue] = record;
                 }
               });
-              foreignData[column.foreignKey.table] = lookupTable;
-              console.log(`Lookup table for ${column.foreignKey.table}:`, lookupTable);
+              foreignData[fkTable] = lookupTable;
+              console.log(`Lookup table for ${fkTable}:`, lookupTable);
             }
           } else {
-            console.error(`Failed to fetch ${column.foreignKey.table}:`, response.status);
+            console.error(`Failed to fetch ${fkTable}:`, response.status);
           }
         } catch (err) {
-          console.error(`Failed to load foreign key data for ${column.foreignKey.table}:`, err);
+          console.error(`Failed to load foreign key data for ${fkTable}:`, err);
         }
       }
     }
@@ -155,12 +160,11 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:8082/api/sql/findAll', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:8082/api/config/data/${tableName}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ tableName }),
       });
 
       if (!response.ok) {
@@ -168,8 +172,12 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
       }
 
       const data = await response.json();
+      console.log('Fetch records response:', data);
       if (data.success && data.data) {
-        setRecords(data.data);
+        // ページング形式のレスポンスに対応
+        const records = data.data.content || data.data;
+        console.log('Records to set:', records);
+        setRecords(Array.isArray(records) ? records : []);
       } else {
         throw new Error('データの取得に失敗しました');
       }
@@ -209,12 +217,11 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
         console.log('単一主キー削除リクエスト:', requestBody);
       }
       
-      const response = await fetch('http://localhost:8082/api/sql/delete', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:8082/api/config/data/${tableName}/${record.id}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -382,7 +389,18 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
   }
 
   const currentTable = tableConfig.tables[tableName];
-  const displayColumns = currentTable.listColumns;
+  const displayColumns = currentTable.listColumns || [];
+  
+  if (!currentTable.listColumns || currentTable.listColumns.length === 0) {
+    return (
+      <div className="error-container">
+        <h3 className="error-title">表示カラム設定がありません</h3>
+        <p className="error-message">テーブル「{tableName}」のlistColumns設定が見つかりません。</p>
+        <pre>{JSON.stringify(currentTable, null, 2)}</pre>
+      </div>
+    );
+  }
+  
   const filteredRecords = getSortedRecords();
 
   return (

@@ -14,6 +14,7 @@ from metadata_parser import MetadataParser
 from sql_generator import SQLGenerator
 from properties_generator import PropertiesGenerator
 from frontend_generator import FrontendGenerator
+from backend_config_generator import BackendConfigGenerator
 
 
 class CRUDSystemGenerator:
@@ -26,7 +27,8 @@ class CRUDSystemGenerator:
         self.generators = {
             'sql': SQLGenerator(),
             'properties': PropertiesGenerator(), 
-            'frontend': FrontendGenerator()
+            'frontend': FrontendGenerator(),
+            'backend': BackendConfigGenerator()
         }
     
     def generate_all(self, metadata_file: Path, file_types: List[str] = None) -> Dict[str, Any]:
@@ -120,7 +122,7 @@ def main():
     parser.add_argument(
         '--types', '-t',
         type=str,
-        help='生成するファイルタイプ（カンマ区切り: sql,properties,frontend）'
+        help='生成するファイルタイプ（カンマ区切り: sql,properties,frontend,backend）'
     )
     
     parser.add_argument(
