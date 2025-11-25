@@ -115,22 +115,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       console.log('Clearing formData for new creation');
       setFormData({});
     }
-  }, [editData]);
-
-  // 設定読み込み後の初期化も追加
-  useEffect(() => {
-    if (tableConfig && !loading && editData) {
-      console.log('Re-setting editData after config load:', editData);
-      // 同様に正規化
-      const normalizedData: Record<string, any> = {};
-      Object.keys(editData).forEach(key => {
-        normalizedData[key.toLowerCase()] = editData[key];
-        normalizedData[key] = editData[key];
-      });
-      console.log('Re-normalized formData:', normalizedData);
-      setFormData(normalizedData);
-    }
-  }, [tableConfig, loading, editData]);
+  }, [editData?.id, editData?.ID]); // IDの変化のみを監視
 
   const loadConfigurations = async () => {
     try {
@@ -138,44 +123,29 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       setError(null);
 
       // table-config.json をバックエンドから読み込み
-      const tableConfigResponse = await fetch('http://localhost:8082/api/sql/config/table-config', {
+      const tableConfigResponse = await fetch('http://localhost:8082/api/config/table-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: '{}'
       });
       if (!tableConfigResponse.ok) {
         throw new Error('テーブル設定の読み込みに失敗しました');
       }
       const tableConfigData = await tableConfigResponse.json();
+      console.log('DynamicForm - Table config loaded:', tableConfigData);
       setTableConfig(tableConfigData);
       setLanguage(tableConfigData.project.defaultLanguage || 'ja');
 
       // validation-config.json をバックエンドから読み込み
-      const validationConfigResponse = await fetch('http://localhost:8082/api/sql/config/validation-config', {
-        method: 'POST',
+      const validationConfigResponse = await fetch('http://localhost:8082/api/config/validation', {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
       });
       if (!validationConfigResponse.ok) {
         throw new Error('バリデーション設定の読み込みに失敗しました');
       }
       const validationConfigData = await validationConfigResponse.json();
       setValidationConfig(validationConfigData);
-
-      // メッセージファイルを読み込み
-      try {
-        const messagesResponse = await fetch('http://localhost:8082/api/sql/config/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ language: tableConfigData.project.defaultLanguage || 'ja' }),
-        });
-        if (messagesResponse.ok) {
-          const messagesData = await messagesResponse.json();
-          setMessages(messagesData);
-        }
-      } catch (err) {
-        console.warn('メッセージファイルの読み込みに失敗しました:', err);
-      }
 
       // 外部キーデータを読み込み
       await loadForeignKeyOptions(tableConfigData);
@@ -189,28 +159,47 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   };
 
   const loadForeignKeyOptions = async (config: TableConfig) => {
-    if (!config || !config.tables[tableName]) return;
+    console.log('loadForeignKeyOptions called with tableName:', tableName);
+    console.log('Config exists:', !!config);
+    console.log('Config.tables exists:', !!config?.tables);
+    console.log('Table exists:', !!config?.tables?.[tableName]);
     
-    const formFields = config.tables[tableName].formFields;
-    const foreignKeyFields = formFields.filter(field => 
+    if (!config || !config.tables || !config.tables[tableName]) {
+      console.log('Early return - config or table not found');
+      return;
+    }
+    
+    const currentTable = config.tables[tableName];
+    console.log('Current table:', currentTable.name);
+    console.log('Form fields:', currentTable.formFields);
+    
+    if (!currentTable.formFields || !Array.isArray(currentTable.formFields)) {
+      console.log('No formFields found or not an array');
+      return;
+    }
+    
+    const foreignKeyFields = currentTable.formFields.filter(field => 
       field.type === 'select' && field.options?.type === 'foreign_key'
     );
+    
+    console.log('Foreign key fields found:', foreignKeyFields.length);
     
     const options: Record<string, Array<any>> = {};
     
     for (const field of foreignKeyFields) {
       const { table } = field.options;
       try {
-        const response = await fetch('http://localhost:8082/api/sql/findAll', {
-          method: 'POST',
+        const response = await fetch(`http://localhost:8082/api/config/data/${table}`, {
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tableName: table }),
         });
         
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
-            options[field.name] = data.data;
+            // ページング形式のレスポンスに対応
+            const records = data.data.content || data.data;
+            options[field.name] = Array.isArray(records) ? records : [];
           }
         }
       } catch (err) {
@@ -305,7 +294,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (rule.value === 'email') {
           return !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value));
         }
-        return !value || new RegExp(rule.value).test(String(value));
+        // Unicode プロパティエスケープ (\p{L} など) をサポートするために 'u' フラグを追加
+        try {
+          return !value || new RegExp(rule.value, 'u').test(String(value));
+        } catch (e) {
+          // 正規表現が無効な場合はフォールバック（'u' フラグなし）
+          console.warn('Invalid regex pattern with unicode flag, falling back:', rule.value, e);
+          return !value || new RegExp(rule.value).test(String(value));
+        }
       default:
         return true;
     }

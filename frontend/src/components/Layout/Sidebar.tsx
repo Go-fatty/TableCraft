@@ -53,32 +53,45 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTable, onTableSelect }) => {
       setError(null);
 
       // テーブル一覧とテーブル設定を並行して読み込み
-      const [tablesResponse, configResponse] = await Promise.all([
-        fetch('http://localhost:8082/api/sql/tables', {
-          method: 'POST',
+      const [tablesResponse, tableConfigResponse, uiConfigResponse] = await Promise.all([
+        fetch('http://localhost:8082/api/config/tables', {
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
         }),
-        fetch('http://localhost:8082/api/sql/config/table-config', {
+        fetch('http://localhost:8082/api/config/table-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
+        }),
+        fetch('http://localhost:8082/api/config/ui', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
         })
       ]);
 
-      if (!tablesResponse.ok || !configResponse.ok) {
+      if (!tablesResponse.ok || !tableConfigResponse.ok) {
         throw new Error('データの読み込みに失敗しました');
       }
 
       const tablesData = await tablesResponse.json();
-      const configData = await configResponse.json();
+      const tableConfigData = await tableConfigResponse.json();
+      const uiConfigData = await uiConfigResponse.json();
 
-      if (tablesData.tables) {
-        setTables(tablesData.tables);
+      console.log('Tables API response:', tablesData);
+      console.log('Table Config API response:', tableConfigData);
+      console.log('UI Config API response:', uiConfigData);
+
+      // APIレスポンス構造に合わせて修正
+      if (tablesData.success && tablesData.data) {
+        setTables(tablesData.data);
       }
 
-      setTableConfig(configData);
-      setLanguage(configData.project.defaultLanguage || 'ja');
+      // テーブル設定を使用
+      setTableConfig(tableConfigData);
+      
+      // デフォルト言語はUI設定またはテーブル設定から取得
+      const defaultLang = uiConfigData.project?.defaultLanguage || 
+                         tableConfigData.project?.defaultLanguage || 'ja';
+      setLanguage(defaultLang);
 
     } catch (err) {
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
@@ -89,15 +102,31 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTable, onTableSelect }) => {
   };
 
   const getTableInfo = (tableName: string): TableInfo => {
-    if (tableConfig && tableConfig.tables[tableName]) {
+    if (tableConfig && tableConfig.tables && tableConfig.tables[tableName]) {
       const config = tableConfig.tables[tableName];
+      const metadata = config.metadata || {};
+      
+      // アイコンの文字化けチェック（日本語の場合は絵文字ではない）
+      let icon = metadata.icon || '📋';
+      // 文字化けしている場合（絵文字でない漢字などが含まれている）はフォールバックを使用
+      if (icon && !/[\u{1F300}-\u{1F9FF}]/u.test(icon)) {
+        const iconMap: Record<string, string> = {
+          users: '👥',
+          categories: '📂',
+          products: '📦',
+          orders: '🛒',
+          order_details: '📋',
+        };
+        icon = iconMap[tableName] || '📋';
+      }
+      
       return {
         name: tableName,
-        displayName: config.metadata.labels[language] || config.metadata.labels.ja || tableName,
-        icon: config.metadata.icon || '📋',
-        description: config.metadata.description[language] || config.metadata.description.ja || '',
-        category: config.metadata.category || 'other',
-        sortOrder: config.metadata.sortOrder || 999,
+        displayName: metadata.labels?.[language] || metadata.labels?.ja || config.displayName || tableName,
+        icon: icon,
+        description: metadata.description?.[language] || metadata.description?.ja || config.description || '',
+        category: metadata.category || 'other',
+        sortOrder: metadata.sortOrder || 999,
       };
     }
 

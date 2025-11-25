@@ -1,5 +1,5 @@
 // Generated React Hooks for table operations
-// Generated at: 2025-11-21 18:22:42
+// Generated at: 2025-11-25 10:12:32
 
 import { useState, useEffect } from 'react';
 
@@ -59,9 +59,9 @@ export const useUsers = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Users[]>('/api/sql/findAll', {
+    const data = await callApi<Users[]>('/api/config/find', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'users' }),
+      body: JSON.stringify({ tableName: 'users', pagination: { page: 0, size: 1000 } }),
     }});
     
     if (data) {
@@ -71,7 +71,7 @@ export const useUsers = () => {
 
   // Create new record
   const createRecord = async (data: UsersForm) => {
-    const result = await callApi<Users>('/api/sql/create', {
+    const result = await callApi<Users>('/api/config/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users', data }),
     }});
@@ -85,7 +85,7 @@ export const useUsers = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: UsersForm) => {
-    const result = await callApi<Users>('/api/sql/update', {
+    const result = await callApi<Users>('/api/config/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users', id, data }),
     }});
@@ -101,7 +101,7 @@ export const useUsers = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
+    const success = await callApi<boolean>('/api/config/delete', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'users', id }),
     });
@@ -131,9 +131,9 @@ export const useCategories = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Categories[]>('/api/sql/findAll', {
+    const data = await callApi<Categories[]>('/api/config/find', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'categories' }),
+      body: JSON.stringify({ tableName: 'categories', pagination: { page: 0, size: 1000 } }),
     }});
     
     if (data) {
@@ -143,7 +143,7 @@ export const useCategories = () => {
 
   // Create new record
   const createRecord = async (data: CategoriesForm) => {
-    const result = await callApi<Categories>('/api/sql/create', {
+    const result = await callApi<Categories>('/api/config/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories', data }),
     }});
@@ -157,7 +157,7 @@ export const useCategories = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: CategoriesForm) => {
-    const result = await callApi<Categories>('/api/sql/update', {
+    const result = await callApi<Categories>('/api/config/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories', id, data }),
     }});
@@ -173,7 +173,7 @@ export const useCategories = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
+    const success = await callApi<boolean>('/api/config/delete', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'categories', id }),
     });
@@ -203,9 +203,9 @@ export const useProducts = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<Products[]>('/api/sql/findAll', {
+    const data = await callApi<Products[]>('/api/config/find', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'products' }),
+      body: JSON.stringify({ tableName: 'products', pagination: { page: 0, size: 1000 } }),
     }});
     
     if (data) {
@@ -215,7 +215,7 @@ export const useProducts = () => {
 
   // Create new record
   const createRecord = async (data: ProductsForm) => {
-    const result = await callApi<Products>('/api/sql/create', {
+    const result = await callApi<Products>('/api/config/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products', data }),
     }});
@@ -229,7 +229,7 @@ export const useProducts = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: ProductsForm) => {
-    const result = await callApi<Products>('/api/sql/update', {
+    const result = await callApi<Products>('/api/config/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products', id, data }),
     }});
@@ -245,7 +245,7 @@ export const useProducts = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
+    const success = await callApi<boolean>('/api/config/delete', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'products', id }),
     });
@@ -275,9 +275,9 @@ export const useOrderDetails = () => {
 
   // Fetch all records
   const fetchRecords = async () => {
-    const data = await callApi<OrderDetails[]>('/api/sql/findAll', {
+    const data = await callApi<OrderDetails[]>('/api/config/find', {
       method: 'POST',
-      body: JSON.stringify({ tableName: 'order_details' }),
+      body: JSON.stringify({ tableName: 'order_details', pagination: { page: 0, size: 1000 } }),
     }});
     
     if (data) {
@@ -287,7 +287,7 @@ export const useOrderDetails = () => {
 
   // Create new record
   const createRecord = async (data: OrderDetailsForm) => {
-    const result = await callApi<OrderDetails>('/api/sql/create', {
+    const result = await callApi<OrderDetails>('/api/config/create', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'order_details', data }),
     }});
@@ -301,7 +301,7 @@ export const useOrderDetails = () => {
 
   // Update existing record
   const updateRecord = async (id: number, data: OrderDetailsForm) => {
-    const result = await callApi<OrderDetails>('/api/sql/update', {
+    const result = await callApi<OrderDetails>('/api/config/update', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'order_details', id, data }),
     }});
@@ -317,7 +317,7 @@ export const useOrderDetails = () => {
 
   // Delete record
   const deleteRecord = async (id: number) => {
-    const success = await callApi<boolean>('/api/sql/delete', {
+    const success = await callApi<boolean>('/api/config/delete', {
       method: 'POST',
       body: JSON.stringify({ tableName: 'order_details', id }),
     });

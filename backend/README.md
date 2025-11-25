@@ -23,8 +23,11 @@ src/main/java/com/tablecraft/app/
 ## 🔧 API エンドポイント
 
 ### データ操作
-- `POST /api/sql/tables` - テーブル一覧
-- `POST /api/sql/schema` - テーブルスキーマ
+- `GET /api/config/tables` - テーブル一覧
+- `GET /api/config/schema/{tableName}` - テーブルスキーマ
+- `GET /api/config/ui` - UI設定
+- `GET /api/config/validation` - バリデーション設定
+- `POST /api/config/reload` - 設定のホットリロード
 - `POST /api/sql/findAll` - データ全件取得
 - `POST /api/sql/create` - データ作成
 - `POST /api/sql/update` - データ更新  
