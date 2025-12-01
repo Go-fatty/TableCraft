@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ManualTableDefinition, TableDefinitionRequest } from '../../api/adminApi';
+import type { TableDefinition, TableCreationRequest, TableUISettingsUpdateRequest } from '../../api/adminApi';
 import {
   createTable,
   listTables,
@@ -16,10 +16,10 @@ interface TableBuilderProps {
 }
 
 const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCancel }: TableBuilderProps) => {
-  const [tables, setTables] = useState<ManualTableDefinition[]>([]);
+  const [tables, setTables] = useState<TableDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(defaultShowTemplateSelector);
-  const [editingTable, setEditingTable] = useState<ManualTableDefinition | undefined>(undefined);
+  const [editingTable, setEditingTable] = useState<TableDefinition | undefined>(undefined);
   const [showTemplateSelector, setShowTemplateSelector] = useState(defaultShowTemplateSelector);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCan
     }
   };
 
-  const handleCreateTable = async (request: TableDefinitionRequest) => {
+  const handleCreateTable = async (request: TableCreationRequest) => {
     try {
       const response = await createTable(request);
       
@@ -75,12 +75,26 @@ const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCan
     }
   };
 
-  const handleUpdateTable = async (request: TableDefinitionRequest) => {
+  const handleUpdateTable = async (request: TableCreationRequest) => {
     if (!editingTable?.id) return;
 
     try {
-      await updateTable(editingTable.id, request);
-      alert('テーブルを更新しました');
+      // Update API expects TableUISettingsUpdateRequest (UI settings only)
+      const updateRequest: TableUISettingsUpdateRequest = {
+        displayName: request.displayName,
+        description: request.description,
+        enableSearch: request.enableSearch,
+        enableSort: request.enableSort,
+        enablePagination: request.enablePagination,
+        pageSize: request.pageSize,
+        allowCreate: request.allowCreate,
+        allowEdit: request.allowEdit,
+        allowDelete: request.allowDelete,
+        allowBulk: request.allowBulk,
+      };
+      
+      await updateTable(editingTable.id, updateRequest);
+      alert('テーブルのUI設定を更新しました');
       setShowEditor(false);
       setEditingTable(undefined);
       loadTables();
@@ -94,7 +108,7 @@ const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCan
     }
   };
 
-  const handleDeleteTable = async (table: ManualTableDefinition) => {
+  const handleDeleteTable = async (table: TableDefinition) => {
     if (!window.confirm(`テーブル「${table.displayName || table.tableName}」を削除してもよろしいですか?\n\n⚠️ この操作は取り消せません。`)) {
       return;
     }
@@ -114,7 +128,7 @@ const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCan
     }
   };
 
-  const handleEdit = (table: ManualTableDefinition) => {
+  const handleEdit = (table: TableDefinition) => {
     setEditingTable(table);
     setShowEditor(true);
   };
@@ -190,9 +204,9 @@ const TableBuilder = ({ defaultShowTemplateSelector = false, onTableSaved, onCan
                 <div className="columns-list">
                   {table.columns.map((col, index) => (
                     <div key={index} className="column-item">
-                      <span className="column-name">{col.name}</span>
-                      <span className="column-type">{col.type}</span>
-                      {col.primary && <span className="badge badge-primary">PK</span>}
+                      <span className="column-name">{col.columnName}</span>
+                      <span className="column-type">{col.dataType}</span>
+                      {col.primaryKey && <span className="badge badge-primary">PK</span>}
                       {col.autoIncrement && <span className="badge badge-info">AI</span>}
                     </div>
                   ))}

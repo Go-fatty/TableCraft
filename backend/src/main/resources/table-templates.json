@@ -5,35 +5,35 @@
       "description": "ID、作成者、作成日時、更新者、更新日時を含む基本的なテーブル",
       "columns": [
         {
-          "name": "id",
-          "type": "BIGINT",
+          "columnName": "id",
+          "dataType": "BIGINT",
           "nullable": false,
-          "primary": true,
+          "primaryKey": true,
           "autoIncrement": true,
           "comment": "主キー"
         },
         {
-          "name": "created_by",
-          "type": "VARCHAR(100)",
+          "columnName": "created_by",
+          "dataType": "VARCHAR(100)",
           "nullable": true,
           "comment": "作成者"
         },
         {
-          "name": "created_at",
-          "type": "DATETIME",
+          "columnName": "created_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "作成日時"
         },
         {
-          "name": "updated_by",
-          "type": "VARCHAR(100)",
+          "columnName": "updated_by",
+          "dataType": "VARCHAR(100)",
           "nullable": true,
           "comment": "更新者"
         },
         {
-          "name": "updated_at",
-          "type": "DATETIME",
+          "columnName": "updated_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "更新日時"
@@ -45,48 +45,48 @@
       "description": "ユーザー情報を管理するテーブル",
       "columns": [
         {
-          "name": "id",
-          "type": "BIGINT",
+          "columnName": "id",
+          "dataType": "BIGINT",
           "nullable": false,
-          "primary": true,
+          "primaryKey": true,
           "autoIncrement": true,
           "comment": "ユーザーID"
         },
         {
-          "name": "username",
-          "type": "VARCHAR(50)",
+          "columnName": "username",
+          "dataType": "VARCHAR(50)",
           "nullable": false,
           "comment": "ユーザー名"
         },
         {
-          "name": "email",
-          "type": "VARCHAR(255)",
+          "columnName": "email",
+          "dataType": "VARCHAR(255)",
           "nullable": false,
           "comment": "メールアドレス"
         },
         {
-          "name": "password_hash",
-          "type": "VARCHAR(255)",
+          "columnName": "password_hash",
+          "dataType": "VARCHAR(255)",
           "nullable": false,
           "comment": "パスワードハッシュ"
         },
         {
-          "name": "is_active",
-          "type": "BOOLEAN",
+          "columnName": "is_active",
+          "dataType": "BOOLEAN",
           "nullable": false,
           "defaultValue": "true",
           "comment": "有効フラグ"
         },
         {
-          "name": "created_at",
-          "type": "DATETIME",
+          "columnName": "created_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "作成日時"
         },
         {
-          "name": "updated_at",
-          "type": "DATETIME",
+          "columnName": "updated_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "更新日時"
@@ -98,61 +98,61 @@
       "description": "商品情報を管理するテーブル",
       "columns": [
         {
-          "name": "id",
-          "type": "BIGINT",
+          "columnName": "id",
+          "dataType": "BIGINT",
           "nullable": false,
-          "primary": true,
+          "primaryKey": true,
           "autoIncrement": true,
           "comment": "商品ID"
         },
         {
-          "name": "product_code",
-          "type": "VARCHAR(50)",
+          "columnName": "product_code",
+          "dataType": "VARCHAR(50)",
           "nullable": false,
           "comment": "商品コード"
         },
         {
-          "name": "product_name",
-          "type": "VARCHAR(255)",
+          "columnName": "product_name",
+          "dataType": "VARCHAR(255)",
           "nullable": false,
           "comment": "商品名"
         },
         {
-          "name": "description",
-          "type": "TEXT",
+          "columnName": "description",
+          "dataType": "TEXT",
           "nullable": true,
           "comment": "商品説明"
         },
         {
-          "name": "unit_price",
-          "type": "DECIMAL(10,2)",
+          "columnName": "unit_price",
+          "dataType": "DECIMAL(10,2)",
           "nullable": false,
           "comment": "単価"
         },
         {
-          "name": "stock_quantity",
-          "type": "INT",
+          "columnName": "stock_quantity",
+          "dataType": "INT",
           "nullable": false,
           "defaultValue": "0",
           "comment": "在庫数"
         },
         {
-          "name": "is_available",
-          "type": "BOOLEAN",
+          "columnName": "is_available",
+          "dataType": "BOOLEAN",
           "nullable": false,
           "defaultValue": "true",
           "comment": "販売可能フラグ"
         },
         {
-          "name": "created_at",
-          "type": "DATETIME",
+          "columnName": "created_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "作成日時"
         },
         {
-          "name": "updated_at",
-          "type": "DATETIME",
+          "columnName": "updated_at",
+          "dataType": "DATETIME",
           "nullable": false,
           "defaultValue": "CURRENT_TIMESTAMP",
           "comment": "更新日時"
@@ -164,35 +164,35 @@
       "description": "コード値を管理するマスタテーブル",
       "columns": [
         {
-          "name": "id",
-          "type": "BIGINT",
+          "columnName": "id",
+          "dataType": "BIGINT",
           "nullable": false,
-          "primary": true,
+          "primaryKey": true,
           "autoIncrement": true,
           "comment": "ID"
         },
         {
-          "name": "code",
-          "type": "VARCHAR(50)",
+          "columnName": "code",
+          "dataType": "VARCHAR(50)",
           "nullable": false,
           "comment": "コード"
         },
         {
-          "name": "name",
-          "type": "VARCHAR(255)",
+          "columnName": "name",
+          "dataType": "VARCHAR(255)",
           "nullable": false,
           "comment": "名称"
         },
         {
-          "name": "display_order",
-          "type": "INT",
+          "columnName": "display_order",
+          "dataType": "INT",
           "nullable": false,
           "defaultValue": "0",
           "comment": "表示順"
         },
         {
-          "name": "is_active",
-          "type": "BOOLEAN",
+          "columnName": "is_active",
+          "dataType": "BOOLEAN",
           "nullable": false,
           "defaultValue": "true",
           "comment": "有効フラグ"

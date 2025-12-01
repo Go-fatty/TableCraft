@@ -1,0 +1,1162 @@
+{
+  "tables" : {
+    "config_generation_history" : {
+      "name" : "config_generation_history",
+      "label" : "config_generation_history",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "config_type",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "config_content",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_ids",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "generated_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "generated_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "applied",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "applied_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "config_type", "config_content", "table_ids", "generated_by", "generated_at", "applied", "applied_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "custom_scripts" : {
+      "name" : "custom_scripts",
+      "label" : "custom_scripts",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "script_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "script_type",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "description",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "script_content",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "parameters",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "return_type",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "is_active",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "version",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "script_name", "script_type", "description", "script_content", "parameters", "return_type", "is_active", "version", "created_by", "created_at", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "manual_table_definitions" : {
+      "name" : "manual_table_definitions",
+      "label" : "manual_table_definitions",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "display_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "columns",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_search",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_sort",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_pagination",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "page_size",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_create",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_edit",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_delete",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_bulk",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "table_name", "display_name", "columns", "created_by", "created_at", "updated_at", "enable_search", "enable_sort", "enable_pagination", "page_size", "allow_create", "allow_edit", "allow_delete", "allow_bulk" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "manual_table_definitions_backup" : {
+      "name" : "manual_table_definitions_backup",
+      "label" : "manual_table_definitions_backup",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "display_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "columns",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_search",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_sort",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_pagination",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "page_size",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_create",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_edit",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_delete",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_bulk",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "id", "table_name", "display_name", "columns", "created_by", "created_at", "updated_at", "enable_search", "enable_sort", "enable_pagination", "page_size", "allow_create", "allow_edit", "allow_delete", "allow_bulk" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "parsed_table_definitions" : {
+      "name" : "parsed_table_definitions",
+      "label" : "parsed_table_definitions",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "sql_file_id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_structure",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "sql_file_id", "table_name", "table_structure", "created_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "parsed_table_definitions_backup" : {
+      "name" : "parsed_table_definitions_backup",
+      "label" : "parsed_table_definitions_backup",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "sql_file_id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_structure",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "id", "sql_file_id", "table_name", "table_structure", "created_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "table_ui_settings" : {
+      "name" : "table_ui_settings",
+      "label" : "table_ui_settings",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "table_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "display_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "description",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_search",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_sort",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "enable_pagination",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "page_size",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_create",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_edit",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_delete",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "allow_bulk",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "table_name", "display_name", "description", "enable_search", "enable_sort", "enable_pagination", "page_size", "allow_create", "allow_edit", "allow_delete", "allow_bulk", "created_by", "created_at", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "uploaded_sql_files" : {
+      "name" : "uploaded_sql_files",
+      "label" : "uploaded_sql_files",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "file_name",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "file_size",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "sql_type",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "dbms_type",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "sql_content",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "parse_status",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "parse_result",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "error_message",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "textarea",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "uploaded_by",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "uploaded_at",
+        "label" : {
+          "ja" : "",
+          "en" : ""
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "file_name", "file_size", "sql_type", "dbms_type", "sql_content", "parse_status", "parse_result", "error_message", "uploaded_by", "uploaded_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
+    "user" : {
+      "name" : "user",
+      "label" : "基本ユーザー",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "ユーザーID",
+          "en" : "ユーザーID"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "username",
+        "label" : {
+          "ja" : "ユーザー名",
+          "en" : "ユーザー名"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "email",
+        "label" : {
+          "ja" : "メールアドレス",
+          "en" : "メールアドレス"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "password_hash",
+        "label" : {
+          "ja" : "パスワードハッシュ",
+          "en" : "パスワードハッシュ"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "is_active",
+        "label" : {
+          "ja" : "有効フラグ",
+          "en" : "有効フラグ"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "作成日時",
+          "en" : "作成日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "更新日時",
+          "en" : "更新日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "username", "email", "password_hash", "is_active", "created_at", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    }
+  }
+}

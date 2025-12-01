@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import type { ColumnDefinition, ManualTableDefinition, TableDefinitionRequest, TableTemplate } from '../../api/adminApi';
+import type { ColumnDefinition, TableDefinition, TableCreationRequest, TableTemplate } from '../../api/adminApi';
 import { getTableTemplates } from '../../api/adminApi';
 import ColumnForm from './ColumnForm';
 import './TableEditorModal.css';
 
 interface TableEditorModalProps {
-  table?: ManualTableDefinition;
+  table?: TableDefinition;
   showTemplateSelector?: boolean;
-  onSave: (request: TableDefinitionRequest) => Promise<void>;
+  onSave: (request: TableCreationRequest) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -42,6 +42,8 @@ const TableEditorModal = ({ table, showTemplateSelector = false, onSave, onCance
     setSelectedTemplate(templateKey);
     if (templateKey && templates[templateKey]) {
       const template = templates[templateKey];
+      console.log('🔍 Selected template:', templateKey);
+      console.log('🔍 Template columns:', template.columns);
       setColumns(template.columns);
       if (!displayName && template.name) {
         setDisplayName(template.name);
@@ -87,7 +89,7 @@ const TableEditorModal = ({ table, showTemplateSelector = false, onSave, onCance
       return;
     }
 
-    const hasPrimaryKey = columns.some((col) => col.primary);
+    const hasPrimaryKey = columns.some((col) => col.primaryKey);
     if (!hasPrimaryKey) {
       alert('PRIMARY KEYを設定したカラムを追加してください');
       return;
@@ -198,10 +200,10 @@ const TableEditorModal = ({ table, showTemplateSelector = false, onSave, onCance
                   <tbody>
                     {columns.map((col, index) => (
                       <tr key={index}>
-                        <td className="col-name">{col.name}</td>
-                        <td>{col.type}</td>
+                        <td className="col-name">{col.columnName}</td>
+                        <td>{col.dataType}</td>
                         <td>{col.nullable ? '○' : '×'}</td>
-                        <td>{col.primary ? '✓' : ''}</td>
+                        <td>{col.primaryKey ? '✓' : ''}</td>
                         <td>{col.autoIncrement ? '✓' : ''}</td>
                         <td className="col-default">{col.defaultValue || '-'}</td>
                         <td className="col-comment">{col.comment || '-'}</td>

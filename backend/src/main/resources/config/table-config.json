@@ -1,30 +1,62 @@
 {
   "tables" : {
-    "temp1" : {
-      "id" : "temp1",
-      "name" : "TEMP1",
-      "label" : "基本テーブル１",
+    "user" : {
+      "name" : "user",
+      "label" : "基本ユーザー",
       "icon" : "Table",
       "columns" : [ {
         "name" : "id",
         "label" : {
-          "ja" : "主キー",
-          "en" : "主キー"
+          "ja" : "ユーザーID",
+          "en" : "ユーザーID"
         },
         "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "username",
+        "label" : {
+          "ja" : "ユーザー名",
+          "en" : "ユーザー名"
+        },
+        "type" : "text",
         "required" : true,
         "visible" : true,
         "sortable" : true,
         "filterable" : true
       }, {
-        "name" : "created_by",
+        "name" : "email",
         "label" : {
-          "ja" : "作成者",
-          "en" : "作成者"
+          "ja" : "メールアドレス",
+          "en" : "メールアドレス"
         },
         "type" : "text",
-        "required" : false,
-        "visible" : false,
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "password_hash",
+        "label" : {
+          "ja" : "パスワードハッシュ",
+          "en" : "パスワードハッシュ"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "is_active",
+        "label" : {
+          "ja" : "有効フラグ",
+          "en" : "有効フラグ"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
         "sortable" : true,
         "filterable" : true
       }, {
@@ -35,18 +67,7 @@
         },
         "type" : "date",
         "required" : true,
-        "visible" : false,
-        "sortable" : true,
-        "filterable" : true
-      }, {
-        "name" : "updated_by",
-        "label" : {
-          "ja" : "更新者",
-          "en" : "更新者"
-        },
-        "type" : "text",
-        "required" : false,
-        "visible" : false,
+        "visible" : true,
         "sortable" : true,
         "filterable" : true
       }, {
@@ -57,22 +78,11 @@
         },
         "type" : "date",
         "required" : true,
-        "visible" : false,
-        "sortable" : true,
-        "filterable" : true
-      }, {
-        "name" : "name",
-        "label" : {
-          "ja" : "名前",
-          "en" : "名前"
-        },
-        "type" : "text",
-        "required" : false,
         "visible" : true,
         "sortable" : true,
         "filterable" : true
       } ],
-      "listColumns" : [ "id", "name" ],
+      "listColumns" : [ "username", "email", "password_hash", "is_active", "created_at", "updated_at" ],
       "enableSearch" : true,
       "enableSort" : true,
       "enablePagination" : true,

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import type { TableDefinitionRequest } from '../../api/adminApi';
+import { useState } from 'react';
+import type { TableCreationRequest } from '../../api/adminApi';
 import { createTable } from '../../api/adminApi';
 import TableEditorModal from './TableEditorModal';
 
@@ -9,11 +9,8 @@ interface TemplateTableCreatorProps {
 }
 
 const TemplateTableCreator = ({ onSaved, onCancel }: TemplateTableCreatorProps) => {
-  const [saving, setSaving] = useState(false);
-
-  const handleCreateTable = async (request: TableDefinitionRequest) => {
+  const handleCreateTable = async (request: TableCreationRequest) => {
     try {
-      setSaving(true);
       const response = await createTable(request);
       
       if (!response.success) {
@@ -42,8 +39,6 @@ const TemplateTableCreator = ({ onSaved, onCancel }: TemplateTableCreatorProps) 
       }
       
       throw error;
-    } finally {
-      setSaving(false);
     }
   };
 

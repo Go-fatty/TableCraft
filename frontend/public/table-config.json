@@ -1,11 +1,96 @@
 {
-  "version": "1.0.0",
-  "generated": "2025-12-01",
-  "project": {
-    "name": "TableCraft Project",
-    "version": "1.0.0",
-    "defaultLanguage": "ja",
-    "supportedLanguages": ["ja", "en"]
-  },
-  "tables": {}
+  "tables" : {
+    "user" : {
+      "name" : "user",
+      "label" : "基本ユーザー",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "ユーザーID",
+          "en" : "ユーザーID"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "username",
+        "label" : {
+          "ja" : "ユーザー名",
+          "en" : "ユーザー名"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "email",
+        "label" : {
+          "ja" : "メールアドレス",
+          "en" : "メールアドレス"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "password_hash",
+        "label" : {
+          "ja" : "パスワードハッシュ",
+          "en" : "パスワードハッシュ"
+        },
+        "type" : "text",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "is_active",
+        "label" : {
+          "ja" : "有効フラグ",
+          "en" : "有効フラグ"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "作成日時",
+          "en" : "作成日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "更新日時",
+          "en" : "更新日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "username", "email", "password_hash", "is_active", "created_at", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    }
+  }
 }

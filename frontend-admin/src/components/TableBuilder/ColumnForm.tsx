@@ -9,10 +9,10 @@ interface ColumnFormProps {
 }
 
 const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
-  const [name, setName] = useState(existingColumn?.name || '');
-  const [type, setType] = useState(existingColumn?.type || 'VARCHAR(255)');
+  const [columnName, setColumnName] = useState(existingColumn?.columnName || '');
+  const [dataType, setDataType] = useState(existingColumn?.dataType || 'VARCHAR(255)');
   const [nullable, setNullable] = useState(existingColumn?.nullable ?? true);
-  const [primary, setPrimary] = useState(existingColumn?.primary || false);
+  const [primaryKey, setPrimaryKey] = useState(existingColumn?.primaryKey || false);
   const [autoIncrement, setAutoIncrement] = useState(existingColumn?.autoIncrement || false);
   const [defaultValue, setDefaultValue] = useState(existingColumn?.defaultValue || '');
   const [comment, setComment] = useState(existingColumn?.comment || '');
@@ -20,26 +20,26 @@ const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
+    if (!columnName.trim()) {
       alert('カラム名を入力してください');
       return;
     }
 
     onAdd({
-      name: name.trim(),
-      type,
+      columnName: columnName.trim(),
+      dataType,
       nullable,
-      primary,
+      primaryKey,
       autoIncrement,
       defaultValue: defaultValue.trim() || undefined,
       comment: comment.trim() || undefined,
     });
 
     // フォームリセット
-    setName('');
-    setType('VARCHAR(255)');
+    setColumnName('');
+    setDataType('VARCHAR(255)');
     setNullable(true);
-    setPrimary(false);
+    setPrimaryKey(false);
     setAutoIncrement(false);
     setDefaultValue('');
     setComment('');
@@ -55,8 +55,8 @@ const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
               カラム名 <span className="required">*</span>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={columnName}
+                onChange={(e) => setColumnName(e.target.value)}
                 placeholder="例: user_name"
                 required
               />
@@ -66,7 +66,7 @@ const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
           <div className="form-row">
             <label>
               データ型 <span className="required">*</span>
-              <select value={type} onChange={(e) => setType(e.target.value)}>
+              <select value={dataType} onChange={(e) => setDataType(e.target.value)}>
                 <option value="VARCHAR(255)">VARCHAR(255)</option>
                 <option value="VARCHAR(100)">VARCHAR(100)</option>
                 <option value="VARCHAR(50)">VARCHAR(50)</option>
@@ -95,9 +95,9 @@ const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
             <label className="checkbox-label">
               <input
                 type="checkbox"
-                checked={primary}
+                checked={primaryKey}
                 onChange={(e) => {
-                  setPrimary(e.target.checked);
+                  setPrimaryKey(e.target.checked);
                   if (e.target.checked) {
                     setNullable(false); // PKはNOT NULL
                   }
@@ -111,7 +111,7 @@ const ColumnForm = ({ onAdd, onCancel, existingColumn }: ColumnFormProps) => {
                 type="checkbox"
                 checked={autoIncrement}
                 onChange={(e) => setAutoIncrement(e.target.checked)}
-                disabled={!primary}
+                disabled={!primaryKey}
               />
               AUTO_INCREMENT
             </label>

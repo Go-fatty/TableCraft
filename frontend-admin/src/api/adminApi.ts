@@ -74,7 +74,8 @@ export interface GetSqlFileResponse {
   error?: string;
 }
 
-export interface TableDefinition {
+/** @deprecated Use TableDefinition (INFORMATION_SCHEMA based) instead */
+export interface LegacyTableDefinition {
   tableId: number;
   tableName: string;
   schemaName?: string;
@@ -86,7 +87,7 @@ export interface TableDefinition {
 
 export interface GetTableDefinitionsResponse {
   success: boolean;
-  data?: TableDefinition[];
+  data?: LegacyTableDefinition[];
   error?: string;
 }
 
@@ -399,56 +400,123 @@ export async function initializeWithDefaults(): Promise<GenerateConfigResponse> 
 }
 
 // ============================================
-// Phase 4: テーブル定義管理API（手動作成用）
+// Phase 4: テーブル定義管理API（INFORMATION_SCHEMAベース）
 // ============================================
 
+/**
+ * Column definition for table creation request
+ */
 export interface ColumnDefinition {
-  name: string;
-  type: string;
+  columnName: string;
+  dataType: string;
   nullable: boolean;
-  primary: boolean;
+  primaryKey: boolean;
   autoIncrement: boolean;
   defaultValue?: string;
   comment?: string;
 }
 
-export interface ManualTableDefinition {
+/**
+ * Column information from INFORMATION_SCHEMA
+ */
+export interface ColumnInfo {
+  columnName: string;
+  dataType: string;
+  columnType: string;
+  nullable: boolean;
+  primaryKey: boolean;
+  autoIncrement: boolean;
+  defaultValue?: string;
+  comment?: string;
+}
+
+/**
+ * Table definition response (schema + UI settings)
+ */
+export interface TableDefinition {
   id?: number;
   tableName: string;
-  schemaName?: string;
-  displayName?: string;
+  displayName: string;
   description?: string;
-  columns: ColumnDefinition[];
-  sqlFileId?: number;
+  columns: ColumnInfo[];
+  
+  // UI Settings
+  enableSearch?: boolean;
+  enableSort?: boolean;
+  enablePagination?: boolean;
+  pageSize?: number;
+  allowCreate?: boolean;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowBulk?: boolean;
+  
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface TableDefinitionRequest {
+/**
+ * Table creation request
+ */
+export interface TableCreationRequest {
   tableName: string;
-  schemaName?: string;
-  displayName?: string;
+  displayName: string;
   description?: string;
   columns: ColumnDefinition[];
+  
+  // UI Settings
+  enableSearch?: boolean;
+  enableSort?: boolean;
+  enablePagination?: boolean;
+  pageSize?: number;
+  allowCreate?: boolean;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowBulk?: boolean;
 }
 
-export interface ManualTableResponse {
+/**
+ * Table UI settings update request
+ */
+export interface TableUISettingsUpdateRequest {
+  displayName?: string;
+  description?: string;
+  enableSearch?: boolean;
+  enableSort?: boolean;
+  enablePagination?: boolean;
+  pageSize?: number;
+  allowCreate?: boolean;
+  allowEdit?: boolean;
+  allowDelete?: boolean;
+  allowBulk?: boolean;
+}
+
+export interface TableResponse {
   success: boolean;
-  data?: ManualTableDefinition;
+  data?: TableDefinition;
   message?: string;
   error?: string;
 }
 
-export interface ManualTableListResponse {
+export interface TableListResponse {
   success: boolean;
-  data?: ManualTableDefinition[];
+  data?: TableDefinition[];
   error?: string;
 }
 
+// Legacy types for backward compatibility
+/** @deprecated Use TableDefinition instead */
+export type ManualTableDefinition = TableDefinition;
+/** @deprecated Use TableCreationRequest instead */
+export type TableDefinitionRequest = TableCreationRequest;
+/** @deprecated Use TableResponse instead */
+export type ManualTableResponse = TableResponse;
+/** @deprecated Use TableListResponse instead */
+export type ManualTableListResponse = TableListResponse;
+
 /**
- * テーブル定義を新規作成
+ * テーブル定義を新規作成（INFORMATION_SCHEMAベース）
  */
-export async function createTable(request: TableDefinitionRequest): Promise<ManualTableResponse> {
+export async function createTable(request: TableCreationRequest): Promise<TableResponse> {
   const response = await fetch(`${API_BASE_URL}/api/admin/tables/create`, {
     method: 'POST',
     headers: {
@@ -461,9 +529,9 @@ export async function createTable(request: TableDefinitionRequest): Promise<Manu
 }
 
 /**
- * テーブル定義一覧を取得
+ * テーブル定義一覧を取得（INFORMATION_SCHEMA + UI設定）
  */
-export async function listTables(): Promise<ManualTableListResponse> {
+export async function listTables(): Promise<TableListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/admin/tables/list`, {
     method: 'POST',
     headers: {
@@ -478,7 +546,7 @@ export async function listTables(): Promise<ManualTableListResponse> {
 /**
  * 特定のテーブル定義を取得
  */
-export async function getTable(tableId: number): Promise<ManualTableResponse> {
+export async function getTable(tableId: number): Promise<TableResponse> {
   const response = await fetch(`${API_BASE_URL}/api/admin/tables/get`, {
     method: 'POST',
     headers: {
@@ -491,9 +559,9 @@ export async function getTable(tableId: number): Promise<ManualTableResponse> {
 }
 
 /**
- * テーブル定義を更新
+ * テーブルのUI設定を更新（テーブル構造は変更しない）
  */
-export async function updateTable(tableId: number, request: TableDefinitionRequest): Promise<ManualTableResponse> {
+export async function updateTable(tableId: number, request: TableUISettingsUpdateRequest): Promise<TableResponse> {
   const response = await fetch(`${API_BASE_URL}/api/admin/tables/update/${tableId}`, {
     method: 'POST',
     headers: {
@@ -506,7 +574,7 @@ export async function updateTable(tableId: number, request: TableDefinitionReque
 }
 
 /**
- * テーブル定義を削除
+ * テーブルを削除（実テーブル + UI設定）
  */
 export async function deleteTable(tableId: number): Promise<{ success: boolean; message?: string; error?: string }> {
   const response = await fetch(`${API_BASE_URL}/api/admin/tables/delete/${tableId}`, {

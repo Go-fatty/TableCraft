@@ -1,9 +1,10 @@
 package com.tablecraft.app.admin.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tablecraft.app.admin.entity.ManualTableDefinition;
-import com.tablecraft.app.admin.service.TableDefinitionService;
-import com.tablecraft.app.admin.service.TableDefinitionService.TableDefinitionRequest;
+import com.tablecraft.app.admin.dto.TableDefinitionResponse;
+import com.tablecraft.app.admin.service.IntegratedTableService;
+import com.tablecraft.app.admin.service.IntegratedTableService.TableCreationRequest;
+import com.tablecraft.app.admin.service.IntegratedTableService.TableUISettingsUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * テーブル定義管理API
- * 手動作成・編集・削除
+ * Table definition management API
+ * Create, edit, delete tables with UI settings
  */
 @RestController
 @RequestMapping("/api/admin/tables")
@@ -21,32 +22,32 @@ import java.util.*;
 public class TableDefinitionController {
 
     @Autowired
-    private TableDefinitionService tableDefinitionService;
+    private IntegratedTableService integratedTableService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     /**
-     * テーブル定義を新規作成
+     * Create new table definition
      * POST /api/admin/tables/create
      */
     @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> createTable(@RequestBody TableDefinitionRequest request) {
+    public ResponseEntity<Map<String, Object>> createTable(@RequestBody TableCreationRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            System.out.println("[TableDefinitionController] テーブル作成リクエスト: " + request.getTableName());
+            System.out.println("[TableDefinitionController] Table creation request: " + request.getTableName());
 
-            ManualTableDefinition created = tableDefinitionService.createManualTable(request);
+            TableDefinitionResponse created = integratedTableService.createTable(request);
 
             response.put("success", true);
-            response.put("data", convertToResponse(created));
+            response.put("data", created);
             response.put("message", "Table created successfully: " + created.getTableName());
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("[TableDefinitionController] ❌ エラー: " + e.getMessage());
+            System.err.println("[TableDefinitionController] Error: " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
@@ -55,7 +56,7 @@ public class TableDefinitionController {
     }
 
     /**
-     * テーブル定義一覧を取得
+     * Get list of table definitions
      * POST /api/admin/tables/list
      */
     @PostMapping("/list")
@@ -63,20 +64,15 @@ public class TableDefinitionController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            List<ManualTableDefinition> tables = tableDefinitionService.listAllTables();
-
-            List<Map<String, Object>> tableList = new ArrayList<>();
-            for (ManualTableDefinition table : tables) {
-                tableList.add(convertToResponse(table));
-            }
+            List<TableDefinitionResponse> tables = integratedTableService.getAllTables();
 
             response.put("success", true);
-            response.put("data", tableList);
+            response.put("data", tables);
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("[TableDefinitionController] ❌ エラー: " + e.getMessage());
+            System.err.println("[TableDefinitionController] Error: " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
@@ -85,7 +81,7 @@ public class TableDefinitionController {
     }
 
     /**
-     * 特定のテーブル定義を取得
+     * Get specific table definition
      * POST /api/admin/tables/get
      */
     @PostMapping("/get")
@@ -95,7 +91,7 @@ public class TableDefinitionController {
         try {
             Long tableId = Long.valueOf(request.get("tableId").toString());
 
-            Optional<ManualTableDefinition> table = tableDefinitionService.getTable(tableId);
+            Optional<TableDefinitionResponse> table = integratedTableService.getTableById(tableId);
 
             if (table.isEmpty()) {
                 response.put("success", false);
@@ -104,12 +100,12 @@ public class TableDefinitionController {
             }
 
             response.put("success", true);
-            response.put("data", convertToResponse(table.get()));
+            response.put("data", table.get());
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("[TableDefinitionController] ❌ エラー: " + e.getMessage());
+            System.err.println("[TableDefinitionController] Error: " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
@@ -118,22 +114,22 @@ public class TableDefinitionController {
     }
 
     /**
-     * テーブル定義を更新
+     * Update table UI settings
      * POST /api/admin/tables/update/{tableId}
      */
     @PostMapping("/update/{tableId}")
     public ResponseEntity<Map<String, Object>> updateTable(
             @PathVariable Long tableId,
-            @RequestBody TableDefinitionRequest request) {
+            @RequestBody TableUISettingsUpdateRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            System.out.println("[TableDefinitionController] テーブル更新リクエスト: ID=" + tableId);
+            System.out.println("[TableDefinitionController] Table update request: ID=" + tableId);
 
-            ManualTableDefinition updated = tableDefinitionService.updateTable(tableId, request);
+            TableDefinitionResponse updated = integratedTableService.updateTableUISettings(tableId, request);
 
             response.put("success", true);
-            response.put("data", convertToResponse(updated));
+            response.put("data", updated);
             response.put("message", "Table updated successfully: " + updated.getTableName());
 
             return ResponseEntity.ok(response);
@@ -143,7 +139,7 @@ public class TableDefinitionController {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
-            System.err.println("[TableDefinitionController] ❌ エラー: " + e.getMessage());
+            System.err.println("[TableDefinitionController] Error: " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
@@ -152,18 +148,18 @@ public class TableDefinitionController {
     }
 
     /**
-     * テーブル定義を更新（PUT版）
+     * Update table UI settings (PUT version)
      * PUT /api/admin/tables/update/{tableId}
      */
     @PutMapping("/update/{tableId}")
     public ResponseEntity<Map<String, Object>> updateTablePut(
             @PathVariable Long tableId,
-            @RequestBody TableDefinitionRequest request) {
+            @RequestBody TableUISettingsUpdateRequest request) {
         return updateTable(tableId, request);
     }
 
     /**
-     * テーブル定義を削除
+     * Delete table definition
      * POST /api/admin/tables/delete/{tableId}
      */
     @PostMapping("/delete/{tableId}")
@@ -171,9 +167,9 @@ public class TableDefinitionController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            System.out.println("[TableDefinitionController] テーブル削除リクエスト: ID=" + tableId);
+            System.out.println("[TableDefinitionController] Table deletion request: ID=" + tableId);
 
-            tableDefinitionService.deleteTable(tableId);
+            integratedTableService.deleteTable(tableId);
 
             response.put("success", true);
             response.put("message", "Table deleted successfully");
@@ -185,30 +181,11 @@ public class TableDefinitionController {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
-            System.err.println("[TableDefinitionController] ❌ エラー: " + e.getMessage());
+            System.err.println("[TableDefinitionController] Error: " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-    }
-
-    /**
-     * エンティティをレスポンス形式に変換
-     */
-    private Map<String, Object> convertToResponse(ManualTableDefinition table) throws Exception {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("id", table.getId());
-        data.put("tableName", table.getTableName());
-        data.put("displayName", table.getDisplayName());
-        
-        // JSON文字列をオブジェクトに変換して返す
-        if (table.getColumns() != null) {
-            data.put("columns", objectMapper.readValue(table.getColumns(), List.class));
-        }
-        
-        data.put("createdAt", table.getCreatedAt());
-        data.put("updatedAt", table.getUpdatedAt());
-        return data;
     }
 }

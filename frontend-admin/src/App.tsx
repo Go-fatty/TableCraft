@@ -88,19 +88,19 @@ function App() {
       const response = await listTablesApi();
       if (response.success && response.data) {
         const backendTables = response.data.map((t: any) => ({
-          id: String(t.id),
+          id: t.id ? String(t.id) : t.tableName, // UI設定がない場合はtableNameをidとして使用
           name: t.tableName,
           displayName: t.displayName || t.tableName,
-          description: '',
-          columns: t.columns || [],  // ✅ カラム情報を含める
-          enableSearch: true,
-          enableSort: true,
-          enablePagination: true,
-          pageSize: 20,
-          allowCreate: true,
-          allowEdit: true,
-          allowDelete: true,
-          allowBulk: false,
+          description: t.description || '',
+          columns: t.columns || [],
+          enableSearch: t.enableSearch ?? true,
+          enableSort: t.enableSort ?? true,
+          enablePagination: t.enablePagination ?? true,
+          pageSize: t.pageSize || 20,
+          allowCreate: t.allowCreate ?? true,
+          allowEdit: t.allowEdit ?? true,
+          allowDelete: t.allowDelete ?? true,
+          allowBulk: t.allowBulk ?? false,
         }));
         setTables(backendTables);
         console.log('✅ テーブル一覧を読み込みました:', backendTables.length, '件');

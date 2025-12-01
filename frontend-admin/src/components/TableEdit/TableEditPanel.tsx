@@ -58,11 +58,11 @@ const TableEditPanel = ({ tableId, tableName, tableDisplayName, tableInfo, onDel
   // バックエンドから取得したカラム情報をフィールドに変換
   const initialFields: Field[] = (tableInfo.columns || []).map((col: any, index: number) => ({
     id: String(index + 1),
-    name: col.name,
-    displayName: col.comment || col.name,
-    type: col.type,
+    name: col.columnName || col.name, // 新旧両対応
+    displayName: col.comment || col.columnName || col.name,
+    type: col.dataType || col.type, // 新旧両対応
     required: !col.nullable,
-    editable: !col.primary && !col.autoIncrement,
+    editable: !(col.primaryKey || col.primary) && !col.autoIncrement,
     visible: col.visible !== undefined ? col.visible : true,
   }));
 
@@ -72,11 +72,11 @@ const TableEditPanel = ({ tableId, tableName, tableDisplayName, tableInfo, onDel
   useEffect(() => {
     const newFields: Field[] = (tableInfo.columns || []).map((col: any, index: number) => ({
       id: String(index + 1),
-      name: col.name,
-      displayName: col.comment || col.name,
-      type: col.type,
+      name: col.columnName || col.name, // 新旧両対応
+      displayName: col.comment || col.columnName || col.name,
+      type: col.dataType || col.type, // 新旧両対応
       required: !col.nullable,
-      editable: !col.primary && !col.autoIncrement,
+      editable: !(col.primaryKey || col.primary) && !col.autoIncrement,
       visible: col.visible !== undefined ? col.visible : true,
     }));
     setFields(newFields);
@@ -87,12 +87,12 @@ const TableEditPanel = ({ tableId, tableName, tableDisplayName, tableInfo, onDel
     const handleSaveAll = () => {
       console.log('[TableEditPanel] save-all-configs イベント受信');
       
-      // fieldsをcolumns形式に変換（バックエンドのColumnRequest形式に合わせる）
+      // fieldsをcolumns形式に変換（新しいINFORMATION_SCHEMAベースの形式に合わせる）
       const updatedColumns = fields.map(field => ({
-        name: field.name,
-        type: field.type,
+        columnName: field.name,
+        dataType: field.type,
         nullable: !field.required,
-        primary: field.name.toLowerCase() === 'id',
+        primaryKey: field.name.toLowerCase() === 'id',
         autoIncrement: field.name.toLowerCase() === 'id',
         defaultValue: null,
         comment: field.displayName,
