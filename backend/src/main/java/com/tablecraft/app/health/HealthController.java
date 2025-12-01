@@ -34,6 +34,7 @@ public class HealthController {
             boolean configExists = java.nio.file.Files.exists(
                     java.nio.file.Paths.get("./config/table-config.json"));
             status.put("externalConfig", configExists ? "Available" : "Missing");
+            status.put("note", "Using new resource structure: config/, scripts/, i18n/");
 
         } catch (Exception e) {
             status.put("status", "DOWN");
@@ -56,12 +57,14 @@ public class HealthController {
 
         // 外部設定ファイル情報
         Map<String, Boolean> configFiles = new HashMap<>();
-        configFiles.put("table-config.json",
+        configFiles.put("config/table-config.json",
                 java.nio.file.Files.exists(java.nio.file.Paths.get("./config/table-config.json")));
-        configFiles.put("validation-config.json",
-                java.nio.file.Files.exists(java.nio.file.Paths.get("./config/validation-config.json")));
-        configFiles.put("ui-config.json",
+        configFiles.put("config/custom-screens.json",
+                java.nio.file.Files.exists(java.nio.file.Paths.get("./config/custom-screens.json")));
+        configFiles.put("config/ui-config.json",
                 java.nio.file.Files.exists(java.nio.file.Paths.get("./config/ui-config.json")));
+        configFiles.put("scripts/scripts.json",
+                java.nio.file.Files.exists(java.nio.file.Paths.get("./config/scripts/scripts.json")));
 
         info.put("externalConfigFiles", configFiles);
 

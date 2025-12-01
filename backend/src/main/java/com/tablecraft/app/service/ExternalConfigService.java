@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 @Service
 public class ExternalConfigService {
 
-    @Value("${tablecraft.config.external.path:./config}")
+    @Value("${tablecraft.admin.config.save-path:src/main/resources/config}")
     private String externalConfigPath;
 
     @Value("${tablecraft.config.enable-external:true}")

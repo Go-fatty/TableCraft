@@ -24,15 +24,12 @@ type TableConfig = {
   tables: {
     [tableName: string]: {
       name: string;
-      formFields: FormField[];
-      metadata: {
-        labels: Record<string, string>;
-        description: Record<string, string>;
-      };
+      label: string;
+      columns: FormField[];
     };
   };
-  project: {
-    defaultLanguage: string;
+  project?: {
+    defaultLanguage?: string;
     supportedLanguages: string[];
   };
 };
@@ -123,10 +120,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       setError(null);
 
       // table-config.json をバックエンドから読み込み
-      const tableConfigResponse = await fetch('http://localhost:8082/api/config/table-config', {
+      const tableConfigResponse = await fetch(`http://localhost:8082/api/config/table-config?_t=${Date.now()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}'
+        body: '{}',
+        cache: 'no-cache'
       });
       if (!tableConfigResponse.ok) {
         throw new Error('テーブル設定の読み込みに失敗しました');
@@ -134,7 +132,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       const tableConfigData = await tableConfigResponse.json();
       console.log('DynamicForm - Table config loaded:', tableConfigData);
       setTableConfig(tableConfigData);
-      setLanguage(tableConfigData.project.defaultLanguage || 'ja');
+      setLanguage(tableConfigData.project?.defaultLanguage || 'ja');
 
       // validation-config.json をバックエンドから読み込み
       const validationConfigResponse = await fetch('http://localhost:8082/api/config/validation', {
@@ -171,14 +169,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     
     const currentTable = config.tables[tableName];
     console.log('Current table:', currentTable.name);
-    console.log('Form fields:', currentTable.formFields);
+    console.log('Columns:', currentTable.columns);
     
-    if (!currentTable.formFields || !Array.isArray(currentTable.formFields)) {
-      console.log('No formFields found or not an array');
+    if (!currentTable.columns || !Array.isArray(currentTable.columns)) {
+      console.log('No columns found or not an array');
       return;
     }
     
-    const foreignKeyFields = currentTable.formFields.filter(field => 
+    const foreignKeyFields = currentTable.columns.filter((field: any) => 
       field.type === 'select' && field.options?.type === 'foreign_key'
     );
     
@@ -215,7 +213,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     // Autofill機能を先に実行（非同期）
     if (tableConfig && tableConfig.tables[tableName]) {
       const currentTable = tableConfig.tables[tableName];
-      const changedField = currentTable.formFields?.find(f => f.name === fieldName);
+      const changedField = currentTable.columns?.find((f: any) => f.name === fieldName);
       
       if (changedField?.autofill?.enabled && value) {
         // Autofillを実行し、完了後にformDataを更新
@@ -249,7 +247,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const newData = { ...data };
     
     // 変更されたフィールドが自動計算のトリガーになっているかチェック
-    currentTable.formFields?.forEach((field: FormField) => {
+    currentTable.columns?.forEach((field: FormField) => {
       if (field.autoCalculate?.enabled) {
         const { triggerFields, formula, targetField } = field.autoCalculate;
         
@@ -369,10 +367,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             continue;
           }
           
-          // formFieldsに含まれていないフィールドはスキップ（hiddenフィールド）
-          const fieldInFormFields = tableConfig?.tables[tableName]?.formFields?.find((f: FormField) => f.name === fieldName);
+          // columnsに含まれていないフィールドはスキップ（hiddenフィールド）
+          const fieldInFormFields = tableConfig?.tables[tableName]?.columns?.find((f: FormField) => f.name === fieldName);
           if (!fieldInFormFields) {
-            console.log(`Validation skipped for ${fieldName}: not in formFields (hidden field)`);
+            console.log(`Validation skipped for ${fieldName}: not in columns (hidden field)`);
             continue;
           }
           
@@ -390,7 +388,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               continue;
             }
             // autoCalculateが設定されているフィールドのターゲットフィールドはスキップ
-            const isCalculatedField = tableConfig?.tables[tableName]?.formFields?.some(
+            const isCalculatedField = tableConfig?.tables[tableName]?.columns?.some(
               (f: FormField) => f.autoCalculate?.enabled && f.autoCalculate?.targetField === fieldName
             );
             if (isCalculatedField) {
@@ -417,8 +415,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       
       // 小文字のキーのみを使用（重複除去）
       if (tableConfig && tableConfig.tables[tableName]) {
-        const formFields = tableConfig.tables[tableName].formFields;
-        formFields.forEach(field => {
+        const formFields = tableConfig.tables[tableName].columns;
+        formFields.forEach((field: any) => {
           const fieldName = field.name;
           if (tempData[fieldName] !== undefined) {
             dataToSubmit[fieldName] = tempData[fieldName];
@@ -707,8 +705,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   }
 
   const currentTable = tableConfig.tables[tableName];
-  const tableDisplayName = currentTable.metadata.labels[language] || currentTable.metadata.labels.ja || tableName;
-  const formFields = currentTable.formFields;
+  const tableDisplayName = currentTable.label || tableName;
+  const formFields = currentTable.columns;
 
   console.log('=== Form Render Debug ===');
   console.log('tableName:', tableName);
@@ -725,7 +723,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           {editData ? '📝 編集' : '➕ 新規登録'} - {tableDisplayName}
         </h2>
         <p className="form-subtitle">
-          {currentTable.metadata.description[language] || currentTable.metadata.description.ja || '必要な情報を入力してください'}
+          必要な情報を入力してください
         </p>
       </div>
 

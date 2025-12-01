@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "scripts": {
+    "calculate_discount": {
+      "id": "calculate_discount",
+      "name": "calculate_discount",
+      "type": "javascript",
+      "metadata": {
+        "labels": {
+          "ja": "割引計算",
+          "en": "Calculate Discount"
+        },
+        "description": {
+          "ja": "割引率を計算するスクリプト",
+          "en": "Calculate discount rate"
+        }
+      },
+      "file": "calculate_discount.js",
+      "parameters": [
+        {
+          "name": "price",
+          "type": "number",
+          "required": true,
+          "description": {
+            "ja": "元の価格",
+            "en": "Original price"
+          }
+        }
+      ],
+      "returnType": "object",
+      "isActive": true,
+      "version": 1,
+      "createdAt": "2025-11-28T10:00:00Z",
+      "updatedAt": "2025-11-28T10:00:00Z"
+    },
+    "send_email_notification": {
+      "id": "send_email_notification",
+      "name": "send_email_notification",
+      "type": "javascript",
+      "metadata": {
+        "labels": {
+          "ja": "メール通知送信",
+          "en": "Send Email Notification"
+        },
+        "description": {
+          "ja": "メール通知を送信する",
+          "en": "Send email notification"
+        }
+      },
+      "file": "send_email_notification.js",
+      "parameters": [
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "description": {
+            "ja": "送信先メールアドレス",
+            "en": "Recipient email address"
+          }
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "required": false,
+          "description": {
+            "ja": "メール件名",
+            "en": "Email subject"
+          }
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "required": false,
+          "description": {
+            "ja": "メール本文",
+            "en": "Email body"
+          }
+        }
+      ],
+      "returnType": "object",
+      "isActive": true,
+      "version": 1,
+      "createdAt": "2025-11-28T11:00:00Z",
+      "updatedAt": "2025-11-28T11:00:00Z"
+    }
+  }
+}

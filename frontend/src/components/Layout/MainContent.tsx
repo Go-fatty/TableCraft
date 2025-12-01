@@ -39,10 +39,11 @@ const MainContent: React.FC<MainContentProps> = ({
 
   const loadTableConfig = async () => {
     try {
-      const response = await fetch('http://localhost:8082/api/config/table-config', {
+      const response = await fetch(`http://localhost:8082/api/config/table-config?_t=${Date.now()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}'
+        body: '{}',
+        cache: 'no-cache'
       });
       if (response.ok) {
         const configData = await response.json();
@@ -58,9 +59,7 @@ const MainContent: React.FC<MainContentProps> = ({
   const getTableDisplayName = (tableName: string): string => {
     if (tableConfig && tableConfig.tables && tableConfig.tables[tableName]) {
       const tableInfo = tableConfig.tables[tableName];
-      const metadata = tableInfo.metadata || {};
-      const labels = metadata.labels || {};
-      return labels[language] || labels.ja || tableInfo.displayName || tableName;
+      return tableInfo.label || tableName;
     }
     
     // フォールバック：静的な表示名マッピング

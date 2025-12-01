@@ -341,21 +341,61 @@ public class ConfigBasedController {
     }
 
     /**
-     * テーブル設定ファイルの内容を取得（生のJSONを返す）
+     * テーブル設定ファイルの内容を取得（listColumnsを展開）
      */
     @PostMapping("/table-config")
     public ResponseEntity<String> getTableConfig(@RequestBody(required = false) Map<String, Object> request) {
         try {
-            // 生のJSONファイルを直接読み込んで返す
-            String configContent = readResourceFile("table-config.json");
+            // JSONファイルを読み込んでlistColumnsを展開
+            String configContent = readResourceFile("config/table-config.json");
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Map<String, Object> config = mapper.readValue(configContent, Map.class);
+
+            // 各テーブルのlistColumnsを文字列配列からオブジェクト配列に展開
+            Map<String, Object> tables = (Map<String, Object>) config.get("tables");
+            if (tables != null) {
+                for (Object tableObj : tables.values()) {
+                    Map<String, Object> table = (Map<String, Object>) tableObj;
+                    List<Object> listColumns = (List<Object>) table.get("listColumns");
+                    List<Map<String, Object>> columns = (List<Map<String, Object>>) table.get("columns");
+
+                    if (listColumns != null && columns != null) {
+                        List<Map<String, Object>> expandedColumns = new ArrayList<>();
+                        for (Object columnNameObj : listColumns) {
+                            String columnName = (String) columnNameObj;
+                            // columnsから該当するカラム定義を検索
+                            columns.stream()
+                                    .filter(col -> columnName.equals(col.get("name")))
+                                    .findFirst()
+                                    .ifPresent(col -> {
+                                        // labelsをlabelにコピー（フロントエンド互換性）
+                                        if (col.containsKey("labels") && !col.containsKey("label")) {
+                                            col.put("label", col.get("labels"));
+                                        }
+                                        expandedColumns.add(col);
+                                    });
+                        }
+                        table.put("listColumns", expandedColumns);
+                    }
+                }
+            }
+
+            String expandedJson = mapper.writeValueAsString(config);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json; charset=UTF-8")
-                    .body(configContent);
+                    .body(expandedJson);
         } catch (Exception e) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("error", "Failed to load table configuration: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse.toString());
+            try {
+                return ResponseEntity.status(500)
+                        .header("Content-Type", "application/json")
+                        .body(mapper.writeValueAsString(errorResponse));
+            } catch (Exception jsonException) {
+                return ResponseEntity.status(500).body("{\"success\":false,\"error\":\"Internal server error\"}");
+            }
         }
     }
 
@@ -370,9 +410,16 @@ public class ConfigBasedController {
                     .header("Content-Type", "application/json")
                     .body(configContent);
         } catch (Exception e) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to load validation configuration: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse.toString());
+            try {
+                return ResponseEntity.status(500)
+                        .header("Content-Type", "application/json")
+                        .body(mapper.writeValueAsString(errorResponse));
+            } catch (Exception jsonException) {
+                return ResponseEntity.status(500).body("{\"error\":\"Internal server error\"}");
+            }
         }
     }
 
@@ -387,9 +434,16 @@ public class ConfigBasedController {
                     .header("Content-Type", "application/json")
                     .body(configContent);
         } catch (Exception e) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to load UI configuration: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse.toString());
+            try {
+                return ResponseEntity.status(500)
+                        .header("Content-Type", "application/json")
+                        .body(mapper.writeValueAsString(errorResponse));
+            } catch (Exception jsonException) {
+                return ResponseEntity.status(500).body("{\"error\":\"Internal server error\"}");
+            }
         }
     }
 
@@ -404,11 +458,11 @@ public class ConfigBasedController {
                 language = (String) request.get("language");
             }
 
-            String fileName = "messages.properties";
+            String fileName = "i18n/messages.properties";
             if ("en".equals(language)) {
-                fileName = "messages_en.properties";
+                fileName = "i18n/messages_en.properties";
             } else if ("ja".equals(language)) {
-                fileName = "messages_ja.properties";
+                fileName = "i18n/messages_ja.properties";
             }
 
             Map<String, String> messages = loadPropertiesFile(fileName);
@@ -506,9 +560,16 @@ public class ConfigBasedController {
                     .header("Content-Type", "application/json")
                     .body(configContent);
         } catch (Exception e) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to load UI configuration: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse.toString());
+            try {
+                return ResponseEntity.status(500)
+                        .header("Content-Type", "application/json")
+                        .body(mapper.writeValueAsString(errorResponse));
+            } catch (Exception jsonException) {
+                return ResponseEntity.status(500).body("{\"error\":\"Internal server error\"}");
+            }
         }
     }
 
@@ -523,9 +584,16 @@ public class ConfigBasedController {
                     .header("Content-Type", "application/json")
                     .body(configContent);
         } catch (Exception e) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to load validation configuration: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse.toString());
+            try {
+                return ResponseEntity.status(500)
+                        .header("Content-Type", "application/json")
+                        .body(mapper.writeValueAsString(errorResponse));
+            } catch (Exception jsonException) {
+                return ResponseEntity.status(500).body("{\"error\":\"Internal server error\"}");
+            }
         }
     }
 
