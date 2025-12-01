@@ -16,6 +16,7 @@ C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\mo
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\dto\TableSchemaInfo.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\service\ExternalConfigService.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\entity\TableUISettings.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\config\OpenAPIConfig.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\dto\TableDefinitionResponse.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\service\IntegratedTableService.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\controller\TableDefinitionController.java
@@ -24,5 +25,6 @@ C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\dy
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\controller\ConfigManagementController.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\Application.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\repository\ActionScriptBindingRepository.java
+C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\controller\ApiDocumentController.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\entity\ActionScriptBinding.java
 C:\work\projects\thinking\TableCraft\backend\src\main\java\com\tablecraft\app\admin\entity\CustomScript.java

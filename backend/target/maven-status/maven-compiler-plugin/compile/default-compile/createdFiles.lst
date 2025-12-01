@@ -21,6 +21,7 @@ com\tablecraft\app\admin\entity\TableUISettings.class
 com\tablecraft\app\Application.class
 com\tablecraft\app\admin\service\TableSchemaService.class
 com\tablecraft\app\model\ForeignKeyDefinition.class
+com\tablecraft\app\admin\controller\ApiDocumentController.class
 com\tablecraft\app\service\ConfigBasedTableService.class
 com\tablecraft\app\model\PrimaryKeyDefinition.class
 com\tablecraft\app\admin\service\IntegratedTableService.class
@@ -31,5 +32,6 @@ com\tablecraft\app\model\TableDefinition.class
 com\tablecraft\app\admin\entity\CustomScript.class
 com\tablecraft\app\dynamic\ConfigBasedController.class
 com\tablecraft\app\admin\entity\UploadedSqlFile.class
+com\tablecraft\app\config\OpenAPIConfig.class
 com\tablecraft\app\admin\repository\CustomScriptRepository.class
 com\tablecraft\app\admin\service\IntegratedTableService$TableCreationRequest.class

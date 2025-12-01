@@ -8,9 +8,35 @@ interface HeaderProps {
 
 const Header = ({ onOpenUploadModal }: HeaderProps) => {
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  
   const handleNavigateToApp = () => {
     // 業務画面へ移動（ポート5173）
     window.location.href = 'http://localhost:5173';
+  };
+
+  const handleGenerateApiDocs = async () => {
+    setGenerating(true);
+    try {
+      const response = await fetch('http://localhost:8082/api/admin/docs/generate', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('APIドキュメント生成に失敗しました');
+      }
+      
+      const result = await response.json();
+      console.log('[Header] APIドキュメント生成成功:', result);
+      
+      // Swagger UIを別タブで開く
+      window.open('http://localhost:8082/swagger-ui.html', '_blank');
+    } catch (error) {
+      console.error('[Header] APIドキュメント生成エラー:', error);
+      alert('❌ APIドキュメント生成中にエラーが発生しました');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleSaveAll = async () => {
@@ -48,6 +74,13 @@ const Header = ({ onOpenUploadModal }: HeaderProps) => {
       <div className="header-right">
         <button className="btn btn-primary" onClick={onOpenUploadModal}>
           📤 SQLアップロード
+        </button>
+        <button 
+          className="btn btn-info" 
+          onClick={handleGenerateApiDocs}
+          disabled={generating}
+        >
+          {generating ? '📖 生成中...' : '📖 APIドキュメント'}
         </button>
         <button 
           className="btn btn-warning" 
