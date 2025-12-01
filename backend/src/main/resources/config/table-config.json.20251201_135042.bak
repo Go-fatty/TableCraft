@@ -1,0 +1,59 @@
+{
+  "tables" : {
+    "temp" : {
+      "id" : "temp",
+      "name" : "temp",
+      "label" : "基本テーブル222",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : "id",
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : "created_by",
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : "created_at",
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_by",
+        "label" : "updated_by",
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : "updated_at",
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "id", "created_by", "created_at", "updated_by", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true
+    }
+  }
+}

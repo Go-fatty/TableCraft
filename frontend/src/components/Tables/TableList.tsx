@@ -77,11 +77,12 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
       setLoading(true);
       setError(null);
 
-      // table-config.json をバックエンドから読み込み
-      const response = await fetch('http://localhost:8082/api/config/table-config', {
+      // table-config.json をバックエンドから読み込み（キャッシュ無効化）
+      const response = await fetch(`http://localhost:8082/api/config/table-config?_t=${Date.now()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}'
+        body: '{}',
+        cache: 'no-cache'
       });
       if (!response.ok) {
         throw new Error('テーブル設定の読み込みに失敗しました');
@@ -109,9 +110,10 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
     }
     
     console.log('Current table:', tableName);
-    console.log('List columns:', currentTable.listColumns);
+    console.log('Table columns:', currentTable.columns);
     
-    const foreignKeyColumns = currentTable.listColumns?.filter(col => col.foreignKey) || [];
+    // 新形式: columns配列から外部キーを持つカラムを探す
+    const foreignKeyColumns = currentTable.columns?.filter((col: any) => col.foreignKey) || [];
     console.log('Foreign key columns found:', foreignKeyColumns);
     
     const foreignData: Record<string, Record<string, any>> = {};

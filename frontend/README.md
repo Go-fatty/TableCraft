@@ -1,73 +1,74 @@
-# React + TypeScript + Vite
+# TableCraft Frontend (業務画面)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TableCraftの業務画面フロントエンドです。動的に生成されたCRUD画面でデータを管理します。
 
-Currently, two official plugins are available:
+## 🏗️ 技術スタック
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React**: 18+
+- **TypeScript**: 5+
+- **Vite**: 5+
+- **React Router**: 6+
 
-## React Compiler
+## 📁 主要コンポーネント
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── App.tsx                    # メインアプリ
+├── components/
+│   ├── Layout/                # レイアウトコンポーネント
+│   │   ├── Header.tsx         # ヘッダー
+│   │   └── Sidebar.tsx        # サイドバー（テーブル一覧）
+│   ├── Forms/                 # フォームコンポーネント
+│   │   └── DynamicForm.tsx    # 動的フォーム
+│   └── Tables/                # テーブルコンポーネント
+│       └── TableList.tsx      # データ一覧表示
+└── hooks/
+    └── useTable.ts            # テーブル操作カスタムフック
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 開発
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### ローカル起動
+```bash
+npm install
+npm run dev
 ```
+
+アクセス: http://localhost:5173
+
+### ビルド
+```bash
+npm run build
+```
+
+## 🎯 主な機能
+
+- **動的テーブル一覧**: `table-config.json`から自動生成
+- **データCRUD操作**: 作成・読取・更新・削除
+- **検索・ソート**: カラムごとの検索・ソート機能
+- **多言語対応**: 日本語/英語切り替え
+- **レスポンシブ対応**: モバイル・タブレット対応
+
+## 📝 設定ファイル
+
+### table-config.json
+管理画面で作成したテーブル定義が自動反映されます。
+
+```json
+{
+  "tables": {
+    "temp1": {
+      "id": "temp1",
+      "name": "TEMP1",
+      "label": {"ja": "基本テーブル１", "en": "Basic Table 1"},
+      "columns": [...],
+      "listColumns": [...],
+      "enableSearch": true,
+      "allowCreate": true
+    }
+  }
+}
+```
+
+---
+📖 システム全体の情報は[メインREADME](../README.md)を参照

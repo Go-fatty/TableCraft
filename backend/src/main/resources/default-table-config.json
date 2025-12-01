@@ -1,0 +1,102 @@
+{
+  "project": {
+    "name": "新規プロジェクト",
+    "version": "1.0.0",
+    "description": "TableCraftで作成されたプロジェクト"
+  },
+  "tables": {
+    "sample_users": {
+      "displayName": "ユーザー",
+      "description": "サンプルユーザーテーブル",
+      "icon": "user",
+      "color": "#3B82F6",
+      "operations": {
+        "create": true,
+        "read": true,
+        "update": true,
+        "delete": true
+      },
+      "fields": {
+        "id": {
+          "type": "BIGINT",
+          "displayName": "ID",
+          "required": true,
+          "primary": true,
+          "autoIncrement": true,
+          "listDisplay": true,
+          "sortable": true,
+          "searchable": false
+        },
+        "name": {
+          "type": "VARCHAR(100)",
+          "displayName": "名前",
+          "required": true,
+          "listDisplay": true,
+          "sortable": true,
+          "searchable": true,
+          "validation": {
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "email": {
+          "type": "VARCHAR(255)",
+          "displayName": "メールアドレス",
+          "required": true,
+          "listDisplay": true,
+          "sortable": true,
+          "searchable": true,
+          "validation": {
+            "pattern": "email"
+          }
+        },
+        "age": {
+          "type": "INT",
+          "displayName": "年齢",
+          "required": false,
+          "listDisplay": true,
+          "sortable": true,
+          "searchable": false,
+          "validation": {
+            "min": 0,
+            "max": 150
+          }
+        },
+        "created_at": {
+          "type": "DATETIME",
+          "displayName": "作成日時",
+          "required": false,
+          "default": "CURRENT_TIMESTAMP",
+          "listDisplay": true,
+          "sortable": true,
+          "searchable": false
+        },
+        "updated_at": {
+          "type": "DATETIME",
+          "displayName": "更新日時",
+          "required": false,
+          "default": "CURRENT_TIMESTAMP",
+          "listDisplay": false,
+          "sortable": true,
+          "searchable": false
+        }
+      },
+      "ui": {
+        "listColumns": ["id", "name", "email", "age", "created_at"],
+        "searchable": true,
+        "sortable": true,
+        "pagination": {
+          "enabled": true,
+          "defaultPageSize": 20,
+          "pageSizeOptions": [10, 20, 50, 100]
+        }
+      }
+    }
+  },
+  "settings": {
+    "theme": "light",
+    "language": "ja",
+    "dateFormat": "YYYY-MM-DD",
+    "timeFormat": "HH:mm:ss"
+  }
+}

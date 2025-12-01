@@ -1,0 +1,126 @@
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 2px dashed #ddd;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.empty-state-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.form-select-multiple {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: white;
+}
+
+.form-select-multiple:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.form-select-multiple option {
+  padding: 8px;
+}
+
+.form-select-multiple option:checked {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.selected-tables-display {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.selected-tables-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.selected-tables-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-table-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.no-selection {
+  font-size: 14px;
+  color: #999;
+  font-style: italic;
+}
+
+.order-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.table-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.info-box {
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+}
+
+.info-box p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 14px;
+  line-height: 1.6;
+}

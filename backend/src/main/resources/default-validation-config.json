@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "email": {
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "message": "有効なメールアドレスを入力してください"
+    },
+    "phone": {
+      "pattern": "^0\\d{9,10}$",
+      "message": "有効な電話番号を入力してください（ハイフンなし）"
+    },
+    "postalCode": {
+      "pattern": "^\\d{7}$",
+      "message": "郵便番号は7桁の数字で入力してください"
+    },
+    "url": {
+      "pattern": "^https?://[^\\s]+$",
+      "message": "有効なURLを入力してください"
+    }
+  }
+}

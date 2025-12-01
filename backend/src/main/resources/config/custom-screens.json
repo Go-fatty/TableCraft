@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "generated": "2025-11-28 (optimized)",
+  "customScreens": {
+    "user_order_form": {
+      "name": "user_order_form",
+      "metadata": {
+        "icon": "📝",
+        "color": "#9B59B6",
+        "sortOrder": 1,
+        "labels": {
+          "ja": "ユーザー注文登録",
+          "en": "User Order Form"
+        },
+        "description": {
+          "ja": "ユーザー情報と注文情報を一括登録",
+          "en": "Register user and order information together"
+        }
+      },
+      "targetTables": ["users", "orders"],
+      "fields": [
+        {
+          "id": "field_1",
+          "fieldType": "data",
+          "sourceTable": "users",
+          "sourceField": "name",
+          "labels": {
+            "ja": "ユーザー名",
+            "en": "User Name"
+          },
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "order": 1
+        },
+        {
+          "id": "field_2",
+          "fieldType": "data",
+          "sourceTable": "users",
+          "sourceField": "email",
+          "labels": {
+            "ja": "メールアドレス",
+            "en": "Email"
+          },
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "order": 2
+        },
+        {
+          "id": "field_3",
+          "fieldType": "data",
+          "sourceTable": "orders",
+          "sourceField": "user_id",
+          "labels": {
+            "ja": "ユーザーID",
+            "en": "User ID"
+          },
+          "required": true,
+          "editable": false,
+          "visible": false,
+          "order": 3
+        },
+        {
+          "id": "field_4",
+          "fieldType": "data",
+          "sourceTable": "orders",
+          "sourceField": "product_id",
+          "labels": {
+            "ja": "商品",
+            "en": "Product"
+          },
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "order": 4
+        },
+        {
+          "id": "field_5",
+          "fieldType": "data",
+          "sourceTable": "orders",
+          "sourceField": "quantity",
+          "labels": {
+            "ja": "数量",
+            "en": "Quantity"
+          },
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "order": 5
+        },
+        {
+          "id": "button_1",
+          "fieldType": "button",
+          "labels": {
+            "ja": "割引計算",
+            "en": "Calculate Discount"
+          },
+          "buttonAction": {
+            "scriptId": "calculate_discount",
+            "actionType": "onClick",
+            "params": {}
+          },
+          "visible": true,
+          "order": 6
+        }
+      ],
+      "layout": {
+        "columns": 2,
+        "grouping": [
+          {
+            "title": {
+              "ja": "ユーザー情報",
+              "en": "User Information"
+            },
+            "fields": ["field_1", "field_2"]
+          },
+          {
+            "title": {
+              "ja": "注文情報",
+              "en": "Order Information"
+            },
+            "fields": ["field_3", "field_4", "field_5", "button_1"]
+          }
+        ]
+      }
+    }
+  }
+}
