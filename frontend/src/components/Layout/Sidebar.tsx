@@ -18,21 +18,29 @@ interface TableInfo {
 type TableConfig = {
   tables: {
     [tableName: string]: {
+      id?: string;
       name: string;
-      metadata: {
-        icon: string;
-        color: string;
-        sortOrder: number;
-        category: string;
-        labels: Record<string, string>;
-        description: Record<string, string>;
+      label?: string;
+      icon?: string;
+      columns?: any[];
+      enableSearch?: boolean;
+      // 旧形式との互換性のため
+      metadata?: {
+        icon?: string;
+        color?: string;
+        sortOrder?: number;
+        category?: string;
+        labels?: Record<string, string>;
+        description?: Record<string, string>;
       };
+      displayName?: string;
+      description?: string;
     };
   };
-  project: {
-    name: string;
-    defaultLanguage: string;
-    supportedLanguages: string[];
+  project?: {
+    name?: string;
+    defaultLanguage?: string;
+    supportedLanguages?: string[];
   };
 };
 
@@ -58,9 +66,10 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTable, onTableSelect }) => {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         }),
-        fetch('http://localhost:8082/api/config/table-config', {
+        fetch(`http://localhost:8082/api/config/table-config?_t=${Date.now()}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          cache: 'no-cache'
         }),
         fetch('http://localhost:8082/api/config/ui', {
           method: 'GET',
@@ -104,29 +113,22 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTable, onTableSelect }) => {
   const getTableInfo = (tableName: string): TableInfo => {
     if (tableConfig && tableConfig.tables && tableConfig.tables[tableName]) {
       const config = tableConfig.tables[tableName];
-      const metadata = config.metadata || {};
       
-      // アイコンの文字化けチェック（日本語の場合は絵文字ではない）
-      let icon = metadata.icon || '📋';
-      // 文字化けしている場合（絵文字でない漢字などが含まれている）はフォールバックを使用
-      if (icon && !/[\u{1F300}-\u{1F9FF}]/u.test(icon)) {
-        const iconMap: Record<string, string> = {
-          users: '👥',
-          categories: '📂',
-          products: '📦',
-          orders: '🛒',
-          order_details: '📋',
-        };
-        icon = iconMap[tableName] || '📋';
-      }
+      // 新形式と旧形式の両方に対応
+      const metadata = config.metadata;
+      const icon = metadata?.icon || config.icon || '📋';
+      const displayName = metadata?.labels?.[language] || metadata?.labels?.ja || config.label || config.displayName || tableName;
+      const description = metadata?.description?.[language] || metadata?.description?.ja || config.description || '';
+      const category = metadata?.category || 'other';
+      const sortOrder = metadata?.sortOrder || 999;
       
       return {
         name: tableName,
-        displayName: metadata.labels?.[language] || metadata.labels?.ja || config.displayName || tableName,
-        icon: icon,
-        description: metadata.description?.[language] || metadata.description?.ja || config.description || '',
-        category: metadata.category || 'other',
-        sortOrder: metadata.sortOrder || 999,
+        displayName,
+        icon,
+        description,
+        category,
+        sortOrder,
       };
     }
 
@@ -222,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTable, onTableSelect }) => {
   }
 
   const tablesByCategory = getTablesByCategory();
-  const projectName = tableConfig?.project.name || 'AutoStack Builder';
+  const projectName = tableConfig?.project?.name || 'AutoStack Builder';
 
   return (
     <div className="sidebar">

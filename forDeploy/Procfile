@@ -1,1 +1,0 @@
-web: java -Dserver.port=5000 -Dspring.profiles.active=prod -Dspring.config.additional-location=file:./config/ -jar application.jar 

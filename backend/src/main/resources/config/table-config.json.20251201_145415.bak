@@ -1,0 +1,68 @@
+{
+  "tables" : {
+    "temp1" : {
+      "id" : "temp1",
+      "name" : "TEMP1",
+      "label" : "基本テーブル１",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : "主キー",
+        "type" : "number",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : "作成者",
+        "type" : "text",
+        "required" : false,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : "作成日時",
+        "type" : "date",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_by",
+        "label" : "更新者",
+        "type" : "text",
+        "required" : false,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : "更新日時",
+        "type" : "date",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "name",
+        "label" : "名前",
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "id", "name" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    }
+  }
+}

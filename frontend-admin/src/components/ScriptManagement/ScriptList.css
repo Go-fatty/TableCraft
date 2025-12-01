@@ -1,0 +1,185 @@
+.script-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filter-select:hover {
+  border-color: #667eea;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.script-count {
+  margin-left: auto;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.script-table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.script-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.script-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.script-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.script-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.script-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.script-table td {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.script-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.script-description {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.script-version {
+  font-family: 'Courier New', monospace;
+  color: #6b7280;
+}
+
+.script-date {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-javascript {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-groovy {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-sql {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-default {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.status-active {
+  color: #059669;
+  font-weight: 500;
+}
+
+.status-inactive {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.script-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.action-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.btn-edit:hover {
+  background: #dbeafe;
+}
+
+.btn-test:hover {
+  background: #dcfce7;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px 20px !important;
+  color: #9ca3af;
+  font-style: italic;
+}
