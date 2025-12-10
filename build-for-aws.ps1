@@ -7,7 +7,7 @@
 chcp 65001 | Out-Null
 
 param(
-    [string]$OutputDir = ".\forDeploy",
+    [string]$OutputDir = ".\bin",
     [switch]$SkipFrontendBuild = $false,
     [switch]$SkipBackendBuild = $false
 )
@@ -101,15 +101,6 @@ try {
     if (Test-Path "backend/src/main/resources/config") {
         Copy-Item "backend/src/main/resources/config/*" "$OutputDir/config/" -Force
         Write-Host "     ✅ 設定ファイルコピー完了" -ForegroundColor Green
-    }
-    
-    # SQLファイルもbackend/resourcesからコピー（存在する場合）
-    $sqlFiles = @("table-definitions.sql", "mysql-schema.sql")
-    foreach ($sqlFile in $sqlFiles) {
-        if (Test-Path "backend/src/main/resources/$sqlFile") {
-            Copy-Item "backend/src/main/resources/$sqlFile" "$OutputDir/$sqlFile" -Force
-            Write-Host "     ✅ SQLファイルコピー完了: $sqlFile" -ForegroundColor Green
-        }
     }
     
     # Procfile作成（Elastic Beanstalk用）

@@ -5,4 +5,4 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "TableCraft Backend Starting..." -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
-mvn clean compile spring-boot:run
+mvn spring-boot:run

@@ -31,7 +31,7 @@ const MainContent: React.FC<MainContentProps> = ({
   onViewChange 
 }) => {
   const [tableConfig, setTableConfig] = useState<TableConfig | null>(null);
-  const [language, setLanguage] = useState('ja');
+  const [, setLanguage] = useState('ja');
 
   useEffect(() => {
     loadTableConfig();
@@ -59,7 +59,7 @@ const MainContent: React.FC<MainContentProps> = ({
   const getTableDisplayName = (tableName: string): string => {
     if (tableConfig && tableConfig.tables && tableConfig.tables[tableName]) {
       const tableInfo = tableConfig.tables[tableName];
-      return tableInfo.label || tableName;
+      return tableInfo.metadata?.labels?.ja || tableInfo.name || tableName;
     }
     
     // フォールバック：静的な表示名マッピング

@@ -3,6 +3,8 @@
 
 # Build artifacts
 /backend/target/
+/bin/
+/forDeploy/
 
 # Generated output (development only)
 /settings_creates/output/

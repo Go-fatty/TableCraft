@@ -265,7 +265,7 @@ const TableList: React.FC<TableListProps> = ({ tableName, onEdit }) => {
 
   const handleSort = (columnName: string) => {
     const currentTable = tableConfig?.tables[tableName];
-    if (!currentTable) return;
+    if (!currentTable || !currentTable.listColumns) return;
 
     const column = currentTable.listColumns.find(col => col.name === columnName);
     if (!column?.sortable) return;

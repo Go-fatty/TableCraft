@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 REM TableCraft AWS Deployment Builder (Batch版)
 REM フルスタック構成でElastic Beanstalkデプロイ用パッケージを作成
 
-set "OutputDir=.\forDeploy"
+set "OutputDir=.\bin"
 set "SkipFrontendBuild="
 set "SkipBackendBuild="
 
@@ -100,17 +100,6 @@ REM backend/src/main/resources/config から本番用設定ファイルをコピ
 if exist "backend\src\main\resources\config" (
     xcopy "backend\src\main\resources\config\*" "%OutputDir%\config\" /y >nul
     echo       ✓ 設定ファイルコピー完了
-)
-
-REM SQLファイルもbackend/resourcesからコピー（存在する場合）
-if exist "backend\src\main\resources\table-definitions.sql" (
-    copy "backend\src\main\resources\table-definitions.sql" "%OutputDir%\table-definitions.sql" >nul
-    echo       ✓ SQLファイルコピー完了: table-definitions.sql
-)
-
-if exist "backend\src\main\resources\mysql-schema.sql" (
-    copy "backend\src\main\resources\mysql-schema.sql" "%OutputDir%\mysql-schema.sql" >nul
-    echo       ✓ SQLファイルコピー完了: mysql-schema.sql
 )
 
 REM Procfile作成（Elastic Beanstalk用）

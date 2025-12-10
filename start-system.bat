@@ -20,30 +20,24 @@ echo      初回起動時は以下のコマンドでテーブル作成が必要�
 echo      mysql -u root -p -D tablecraft ^< src\main\resources\mysql-schema.sql
 
 echo.
-echo [2/8] Spring Boot ビルド中...
-call mvn clean package -q -DskipTests
-if errorlevel 1 (
-    echo      ❌ ビルドに失敗しました
+echo [2/8] ビルド済みJARファイル確認中...
+cd ..
+if not exist "bin\application.jar" (
+    echo      ❌ bin\application.jar が見つかりません
+    echo      build-for-aws.bat を実行してビルドしてください
     pause
     exit /b 1
 )
-echo      ✓ ビルド完了
+echo      ✓ JARファイル確認完了
 
 echo.
 echo [3/8] bin フォルダ準備中...
-cd ..
-if exist "bin" (
-    echo      既存のbinフォルダをクリーンアップ...
-    rmdir /S /Q bin
-)
-mkdir bin
-mkdir bin\config
-mkdir bin\sql
-echo      ✓ bin フォルダ作成完了
+if not exist "bin" mkdir bin
+if not exist "bin\config" mkdir bin\config
+echo      ✓ bin フォルダ確認完了
 
 echo.
-echo [4/8] 実行ファイルと設定ファイルをコピー中...
-copy /Y backend\target\tablecraft-backend-0.0.1-SNAPSHOT.jar bin\ >nul
+echo [4/8] 設定ファイルをコピー中...
 if exist "backend\config\table-config.json" (
     copy /Y backend\config\table-config.json bin\config\ >nul
     echo      ✓ 外部設定ファイルをコピー
@@ -52,28 +46,6 @@ if exist "backend\config\table-config.json" (
     echo      ✓ デフォルト設定ファイルをコピー
 )
 copy /Y backend\src\main\resources\application*.properties bin\config\ >nul 2>&1
-
-REM SQLファイルをコピー
-if exist "backend\src\main\resources\table-definitions.sql" (
-    copy /Y backend\src\main\resources\table-definitions.sql bin\sql\ >nul
-    echo      ✓ SQLファイル table-definitions.sql をコピー
-)
-if exist "settings_creates\output\sql\table_definitions.sql" (
-    copy /Y settings_creates\output\sql\table_definitions.sql bin\sql\ >nul
-    echo      ✓ SQLファイル table_definitions.sql をコピー
-)
-if exist "settings_creates\output\sql\create_tables.sql" (
-    copy /Y settings_creates\output\sql\create_tables.sql bin\sql\ >nul
-    echo      ✓ SQLファイル create_tables.sql をコピー
-)
-if exist "settings_creates\output\sql\create_indexes.sql" (
-    copy /Y settings_creates\output\sql\create_indexes.sql bin\sql\ >nul
-    echo      ✓ SQLファイル create_indexes.sql をコピー
-)
-if exist "settings_creates\output\sql\create_foreign_keys.sql" (
-    copy /Y settings_creates\output\sql\create_foreign_keys.sql bin\sql\ >nul
-    echo      ✓ SQLファイル create_foreign_keys.sql をコピー
-)
 echo      ✓ JAR と設定ファイルのコピー完了
 
 echo.
@@ -91,7 +63,7 @@ if "%ERRORLEVEL%"=="0" (
 echo.
 echo [6/8] バックエンド起動中 - bin フォルダから...
 cd bin
-start "TableCraft Backend" java -jar "tablecraft-backend-0.0.1-SNAPSHOT.jar" --spring.profiles.active=dev --server.port=8082 --spring.config.additional-location=file:./config/
+start "TableCraft Backend" java -jar "application.jar" --spring.profiles.active=dev --server.port=8082 --spring.config.additional-location=file:./config/
 echo      ✓ Spring Boot ポート8082 を起動中...
 echo      実行ディレクトリ: %cd%
 echo      起動完了を待機中 - 最大30秒...

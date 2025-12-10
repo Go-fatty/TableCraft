@@ -29,16 +29,21 @@ try {
     Write-Host "     完了: 設定ファイルをコピーしました" -ForegroundColor Green
 
     Write-Host ""
-    Write-Host "[2/4] Spring Boot ビルド中..." -ForegroundColor Yellow
-    & mvn clean package -q
-    if ($LASTEXITCODE -ne 0) {
-        throw "ビルドに失敗しました"
+    Write-Host "[2/4] バックエンド起動準備中..." -ForegroundColor Yellow
+    Write-Host "     build-for-awsを使用してビルドしてください" -ForegroundColor Gray
+    
+    # JARファイルの存在確認
+    Set-Location ".."
+    $jarPath = "bin\application.jar"
+    if (-not (Test-Path $jarPath)) {
+        Write-Host "     ⚠️  bin\application.jar が見つかりません" -ForegroundColor Yellow
+        Write-Host "     build-for-aws.ps1 を実行してビルドしてください" -ForegroundColor Yellow
+        throw "JARファイルが見つかりません。ビルドを実行してください。"
     }
-    Write-Host "     完了: ビルドが完了しました" -ForegroundColor Green
+    Write-Host "     完了: JARファイル確認完了" -ForegroundColor Green
 
     Write-Host ""
     Write-Host "[3/4] バックエンド起動中..." -ForegroundColor Yellow
-    $jarPath = "target\tablecraft-backend-0.0.1-SNAPSHOT.jar"
     Start-Process -WindowStyle Hidden -FilePath "java" -ArgumentList "-jar",$jarPath,"--spring.profiles.active=dev","--server.port=8082"
     Start-Sleep -Seconds 3
     Write-Host "     完了: Spring Boot (ポート8082) を起動しました" -ForegroundColor Green
@@ -57,7 +62,6 @@ try {
     Write-Host "アクセス方法:" -ForegroundColor White
     Write-Host "  フロントエンド: " -NoNewline; Write-Host "http://localhost:5173" -ForegroundColor Yellow
     Write-Host "  バックエンドAPI: " -NoNewline; Write-Host "http://localhost:8082" -ForegroundColor Yellow
-    Write-Host "  MySQL接続: " -NoNewline; Write-Host "localhost:3306/tablecraft" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "システム停止: " -NoNewline; Write-Host "taskkill /F /IM java.exe" -ForegroundColor Red
     Write-Host "==========================================" -ForegroundColor Cyan

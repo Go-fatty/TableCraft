@@ -73,7 +73,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Record<string, string>>({});
+  const [messages] = useState<Record<string, string>>({});
   const [foreignKeyOptions, setForeignKeyOptions] = useState<Record<string, Array<any>>>({});
 
   // メッセージの解決関数

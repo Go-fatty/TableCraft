@@ -1,5 +1,75 @@
 {
   "tables" : {
+    "mtable" : {
+      "name" : "mtable",
+      "label" : "基本テーブル",
+      "icon" : "Table",
+      "columns" : [ {
+        "name" : "id",
+        "label" : {
+          "ja" : "主キー",
+          "en" : "主キー"
+        },
+        "type" : "number",
+        "required" : true,
+        "visible" : false,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_by",
+        "label" : {
+          "ja" : "作成者",
+          "en" : "作成者"
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "created_at",
+        "label" : {
+          "ja" : "作成日時",
+          "en" : "作成日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_by",
+        "label" : {
+          "ja" : "更新者",
+          "en" : "更新者"
+        },
+        "type" : "text",
+        "required" : false,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      }, {
+        "name" : "updated_at",
+        "label" : {
+          "ja" : "更新日時",
+          "en" : "更新日時"
+        },
+        "type" : "date",
+        "required" : true,
+        "visible" : true,
+        "sortable" : true,
+        "filterable" : true
+      } ],
+      "listColumns" : [ "created_by", "created_at", "updated_by", "updated_at" ],
+      "enableSearch" : true,
+      "enableSort" : true,
+      "enablePagination" : true,
+      "pageSize" : 20,
+      "allowCreate" : true,
+      "allowEdit" : true,
+      "allowDelete" : true,
+      "allowBulk" : false
+    },
     "user" : {
       "name" : "user",
       "label" : "基本ユーザー",

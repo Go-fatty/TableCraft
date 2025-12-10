@@ -62,7 +62,8 @@ public class ConfigGeneratorService {
 
             for (String tableName : userTables) {
                 Optional<TableSchemaInfo> schemaOpt = tableSchemaService.getTableSchema(tableName);
-                if (!schemaOpt.isPresent()) continue;
+                if (!schemaOpt.isPresent())
+                    continue;
 
                 TableSchemaInfo schema = schemaOpt.get();
                 Optional<TableUISettings> uiSettings = tableUISettingsService.getSettingsByTableName(tableName);
@@ -81,22 +82,22 @@ public class ConfigGeneratorService {
 
             // 2. frontend/public/table-config.json (for business UI)
             List<Path> frontendPaths = Arrays.asList(
-                Paths.get("frontend", "public"),
-                Paths.get("..", "frontend", "public"),
-                Paths.get(".", "frontend", "public")
-            );
-            
+                    Paths.get("frontend", "public"),
+                    Paths.get("..", "frontend", "public"),
+                    Paths.get(".", "frontend", "public"));
+
             boolean frontendSaved = false;
             for (Path frontendPublicPath : frontendPaths) {
                 if (Files.exists(frontendPublicPath)) {
                     Path frontendTableConfig = frontendPublicPath.resolve("table-config.json");
                     objectMapper.writerWithDefaultPrettyPrinter().writeValue(frontendTableConfig.toFile(), config);
-                    System.out.println("[ConfigGeneratorService] table-config.json saved to: " + frontendTableConfig.toAbsolutePath());
+                    System.out.println("[ConfigGeneratorService] table-config.json saved to: "
+                            + frontendTableConfig.toAbsolutePath());
                     frontendSaved = true;
                     break;
                 }
             }
-            
+
             if (!frontendSaved) {
                 System.out.println("[ConfigGeneratorService] Warning: Could not find frontend/public directory");
             }
@@ -209,13 +210,14 @@ public class ConfigGeneratorService {
 
     /**
      * Check if table is a system table (should be excluded from table-config.json)
-     * System tables are defined in application.properties: tablecraft.admin.system-tables
+     * System tables are defined in application.properties:
+     * tablecraft.admin.system-tables
      */
     private boolean isSystemTable(String tableName) {
         if (systemTablesConfig == null || systemTablesConfig.trim().isEmpty()) {
             return false;
         }
-        
+
         String[] systemTables = systemTablesConfig.split(",");
         for (String systemTable : systemTables) {
             if (tableName.equalsIgnoreCase(systemTable.trim())) {
@@ -223,5 +225,114 @@ public class ConfigGeneratorService {
             }
         }
         return false;
+    }
+
+    /**
+     * Load table templates from resources
+     */
+    public Map<String, Object> loadTableTemplates() throws IOException {
+        try {
+            org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource(
+                    "table-templates.json");
+
+            if (!resource.exists()) {
+                Map<String, Object> emptyResponse = new HashMap<>();
+                emptyResponse.put("templates", new HashMap<>());
+                return emptyResponse;
+            }
+
+            return objectMapper.readValue(
+                    resource.getInputStream(),
+                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+        } catch (Exception e) {
+            throw new IOException("Failed to load table templates: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Load default config file
+     */
+    public Map<String, Object> loadDefaultConfig(String filename) throws IOException {
+        try {
+            org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource(
+                    "defaults/" + filename);
+
+            if (!resource.exists()) {
+                throw new IOException("Default config file not found: " + filename);
+            }
+
+            return objectMapper.readValue(
+                    resource.getInputStream(),
+                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+        } catch (Exception e) {
+            throw new IOException("Failed to load default config: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Initialize with default settings
+     */
+    public void initializeWithDefaults() throws IOException {
+        // This is a placeholder for initialization logic
+        // Implement based on your requirements
+        System.out.println("[ConfigGeneratorService] Initialize with defaults called");
+    }
+
+    /**
+     * Load config from file
+     */
+    public Map<String, Object> loadConfigFromFile(String filename) throws IOException {
+        String configPath = configSavePath + "/" + filename;
+        File file = new File(configPath);
+
+        if (!file.exists()) {
+            throw new IOException("Config file not found: " + configPath);
+        }
+
+        return objectMapper.readValue(file,
+                objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+    }
+
+    /**
+     * Save config to file
+     */
+    public void saveConfigToFile(Map<String, Object> config, String filename) throws IOException {
+        String configPath = configSavePath + "/" + filename;
+        File file = new File(configPath);
+
+        // Create parent directories if they don't exist
+        file.getParentFile().mkdirs();
+
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, config);
+        System.out.println("[ConfigGeneratorService] Config saved to: " + configPath);
+    }
+
+    /**
+     * Generate table config (placeholder - implement based on requirements)
+     */
+    public Map<String, Object> generateTableConfig(List<Long> tableIds, Map<String, Object> options) {
+        // Implement based on your requirements
+        Map<String, Object> config = new HashMap<>();
+        config.put("tables", new HashMap<>());
+        return config;
+    }
+
+    /**
+     * Generate UI config (placeholder - implement based on requirements)
+     */
+    public Map<String, Object> generateUiConfig(List<Long> tableIds, Map<String, Object> options) {
+        // Implement based on your requirements
+        Map<String, Object> config = new HashMap<>();
+        return config;
+    }
+
+    /**
+     * Generate validation config (placeholder - implement based on requirements)
+     */
+    public Map<String, Object> generateValidationConfig(List<Long> tableIds) {
+        // Implement based on your requirements
+        Map<String, Object> config = new HashMap<>();
+        config.put("tables", new HashMap<>());
+        return config;
     }
 }
